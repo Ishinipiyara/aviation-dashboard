@@ -1,301 +1,262 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <base target="_top">
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <style>
-    :root {
-      --navy: #10243a;
-      --navy-2: #183651;
-      --ink: #172b40;
-      --muted: #64758a;
-      --line: #e2e8f0;
-      --bg: #f4f7fb;
-      --card: #ffffff;
-      --blue: #1769aa;
-      --blue-soft: #eaf4fc;
-      --teal: #087e8b;
-      --shadow: 0 8px 24px rgba(15, 39, 64, .06);
-    }
-    * { box-sizing: border-box; }
-    body { margin: 0; background: var(--bg); color: var(--ink); font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; }
-    button, input, select { font: inherit; }
-    .topbar { background: linear-gradient(120deg, #0b1b2c, #173b59); color: white; padding: 24px clamp(18px, 4vw, 54px); }
-    .top-inner { max-width: 1440px; margin: auto; display: flex; align-items: center; justify-content: space-between; gap: 20px; }
-    .brand { display: flex; align-items: center; gap: 14px; }
-    .logo { width: 48px; height: 48px; display: grid; place-items: center; background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.12); border-radius: 14px; font-size: 25px; }
-    .eyebrow { text-transform: uppercase; letter-spacing: .15em; font-size: 10px; font-weight: 800; color: #9ec9e9; }
-    h1 { font-size: clamp(21px, 3vw, 29px); margin: 3px 0 0; letter-spacing: -.035em; }
-    .subtitle { color: #c3d2df; font-size: 13px; margin-top: 5px; }
-    .refresh-btn { color: white; border: 1px solid rgba(255,255,255,.24); background: rgba(255,255,255,.08); padding: 10px 14px; border-radius: 10px; cursor: pointer; white-space: nowrap; }
-    .refresh-btn:hover { background: rgba(255,255,255,.16); }
-    main { max-width: 1440px; margin: auto; padding: 26px clamp(16px, 4vw, 54px) 48px; }
-    .stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; margin-bottom: 24px; }
-    .stat { background: var(--card); border: 1px solid var(--line); border-radius: 15px; padding: 19px 20px; box-shadow: var(--shadow); }
-    .stat-label { color: var(--muted); font-size: 12px; font-weight: 650; }
-    .stat-value { font-size: 29px; font-weight: 780; letter-spacing: -.04em; margin-top: 8px; }
-    .stat-foot { color: #8290a1; font-size: 11px; margin-top: 3px; }
-    .section-head { display: flex; align-items: end; justify-content: space-between; gap: 16px; margin: 4px 0 15px; }
-    .section-head h2 { font-size: 19px; margin: 0; letter-spacing: -.025em; }
-    .section-head p { color: var(--muted); margin: 5px 0 0; font-size: 12px; }
-    .result-count { color: var(--muted); font-size: 12px; white-space: nowrap; }
-    .filters { background: white; border: 1px solid var(--line); border-radius: 15px; padding: 15px; display: grid; grid-template-columns: minmax(220px, 2fr) repeat(3, minmax(145px, 1fr)) auto; gap: 10px; margin-bottom: 18px; box-shadow: var(--shadow); }
-    .field { min-width: 0; }
-    .field label { display: block; font-size: 10px; text-transform: uppercase; letter-spacing: .08em; color: #758397; font-weight: 800; margin: 0 0 6px 2px; }
-    .field input, .field select { width: 100%; min-width: 0; border: 1px solid #d9e2ec; background: #fbfdff; color: var(--ink); border-radius: 9px; padding: 10px 11px; outline: none; }
-    .field input:focus, .field select:focus { border-color: #70acd9; box-shadow: 0 0 0 3px #e7f3fc; }
-    .reset-wrap { display: flex; align-items: end; }
-    .reset-btn { border: 1px solid #d9e2ec; border-radius: 9px; padding: 10px 13px; background: white; color: #46586b; cursor: pointer; height: 40px; }
-    .reset-btn:hover { background: #f5f8fb; }
-    .notice { display: flex; gap: 10px; align-items: flex-start; color: #6d5a2d; background: #fff9e9; border: 1px solid #f1e4ba; padding: 12px 14px; border-radius: 11px; font-size: 12px; line-height: 1.5; margin-bottom: 20px; }
-    .article-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
-    .article { background: white; border: 1px solid var(--line); border-radius: 15px; padding: 19px; box-shadow: var(--shadow); display: flex; flex-direction: column; min-height: 220px; transition: transform .15s ease, box-shadow .15s ease; }
-    .article:hover { transform: translateY(-2px); box-shadow: 0 12px 30px rgba(15,39,64,.10); }
-    .thumb { margin: -19px -19px 15px; height: 170px; overflow: hidden; border-radius: 15px 15px 0 0; background: #eef3f8; }
-    .thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
-    .article-top { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
-    .category { display: inline-flex; align-items: center; max-width: 75%; background: var(--blue-soft); color: #155a8d; border-radius: 6px; padding: 5px 8px; font-size: 10px; font-weight: 800; line-height: 1.35; }
-    .date { color: #7a8797; font-size: 11px; white-space: nowrap; }
-    .article h3 { font-size: 16px; line-height: 1.45; margin: 13px 0 12px; letter-spacing: -.015em; }
-    .meta { display: flex; flex-wrap: wrap; gap: 7px 13px; color: #697b8f; font-size: 11px; margin-bottom: 15px; }
-    .meta span { display: inline-flex; align-items: center; gap: 5px; }
-    .article-bottom { margin-top: auto; padding-top: 13px; border-top: 1px solid #edf1f5; display: flex; align-items: center; justify-content: space-between; gap: 10px; }
-    .publisher { font-size: 11px; font-weight: 750; color: #4d6075; overflow-wrap: anywhere; }
-    .read-link { display: inline-flex; gap: 7px; align-items: center; color: var(--blue); font-size: 12px; font-weight: 800; text-decoration: none; white-space: nowrap; }
-    .read-link:hover { text-decoration: underline; }
-    .empty, .loading, .error { background: white; border: 1px dashed #ccd8e4; border-radius: 15px; text-align: center; padding: 48px 20px; color: var(--muted); grid-column: 1 / -1; }
-    .empty .big, .loading .big { font-size: 30px; margin-bottom: 10px; }
-    .error { color: #a13a3a; background: #fffafa; }
-    .footer { margin-top: 26px; text-align: center; font-size: 11px; color: #8995a4; }
-    .hidden { display: none !important; }
-    @media (max-width: 1050px) { .filters { grid-template-columns: repeat(2, minmax(0, 1fr)); } .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-    @media (max-width: 700px) {
-      .top-inner { align-items: flex-start; } .subtitle { max-width: 260px; line-height: 1.4; }
-      .refresh-btn { font-size: 12px; padding: 9px 10px; }
-      .article-grid { grid-template-columns: 1fr; }
-      .filters { grid-template-columns: 1fr 1fr; padding: 12px; }
-      .field.search { grid-column: 1 / -1; }
-      .section-head { align-items: flex-start; flex-direction: column; }
-      .stat { padding: 15px; } .stat-value { font-size: 25px; }
-    }
-    @media (max-width: 420px) { .filters { grid-template-columns: 1fr; } .field.search { grid-column: auto; } .brand { gap: 10px; } .logo { width: 40px; height: 40px; } }
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sri Lanka Aviation Watch</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #0f2b46; --ink-soft: #52667a; --line: #dbe5ee; --page: #eef3f7; --card: #ffffff;
+    --teal: #0e8f8a; --teal-dark: #0a6f6b; --gold: #e6a82b; --sky1: #0f2b46; --sky2: #1d5f8a;
+    --radius: 18px;
+    --serif: "Fraunces", Georgia, "Times New Roman", serif;
+    --sans: "Manrope", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { margin: 0; background: var(--page); color: var(--ink); font-family: var(--sans); line-height: 1.5; -webkit-font-smoothing: antialiased; }
+  a { color: inherit; }
+  :focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
+
+  /* ---------- Hero ---------- */
+  .hero { position: relative; overflow: hidden; color: #fff; background: linear-gradient(135deg, var(--sky1) 0%, var(--sky2) 70%, #3a8fb7 100%); padding: 44px 24px 96px; }
+  .hero svg.trail { position: absolute; right: -40px; top: 0; height: 100%; width: min(780px, 80%); opacity: .95; pointer-events: none; }
+  .hero-inner { position: relative; max-width: 1180px; margin: 0 auto; display: flex; justify-content: space-between; align-items: flex-end; gap: 24px; flex-wrap: wrap; }
+  .hero h1 { font-family: var(--serif); font-size: clamp(32px, 5.2vw, 56px); line-height: 1.05; margin: 0 0 12px; font-weight: 700; letter-spacing: -.01em; max-width: 14em; }
+  .hero p { margin: 0; max-width: 34em; color: #cfe3f1; font-size: 16px; }
+  .refresh { background: #fff; color: var(--ink); border: 0; border-radius: 999px; padding: 12px 20px; font: 700 14px var(--sans); cursor: pointer; box-shadow: 0 6px 20px rgba(0,0,0,.18); transition: transform .15s; }
+  .refresh:hover { transform: translateY(-2px); }
+  .refresh:disabled { opacity: .7; cursor: wait; transform: none; }
+
+  /* ---------- Stats ---------- */
+  main { max-width: 1180px; margin: 0 auto; padding: 0 24px 48px; }
+  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-top: -58px; position: relative; }
+  .stat { background: var(--card); border-radius: var(--radius); padding: 18px 20px; box-shadow: 0 10px 30px rgba(15,43,70,.10); border-top: 4px solid var(--teal); }
+  .stat:nth-child(2) { border-top-color: var(--gold); }
+  .stat:nth-child(3) { border-top-color: var(--sky2); }
+  .stat:nth-child(4) { border-top-color: #7a5cc4; }
+  .stat b { display: block; font-family: var(--serif); font-size: 34px; line-height: 1.1; }
+  .stat span { color: var(--ink-soft); font-size: 13px; font-weight: 600; }
+
+  /* ---------- Filters ---------- */
+  .bar { position: sticky; top: 0; z-index: 5; margin: 26px -24px 20px; padding: 12px 24px; background: rgba(238,243,247,.92); backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); }
+  .bar-inner { display: grid; grid-template-columns: 1.6fr 1fr 1fr 1fr auto; gap: 10px; align-items: center; }
+  .bar input, .bar select { width: 100%; height: 44px; border: 1px solid var(--line); border-radius: 12px; background: #fff; padding: 0 14px; font: 500 14px var(--sans); color: var(--ink); }
+  .bar input { padding-left: 40px; background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' fill='none' stroke='%2352667a' stroke-width='2' stroke-linecap='round'%3E%3Ccircle cx='8' cy='8' r='6'/%3E%3Cpath d='M13 13l4 4'/%3E%3C/svg%3E") 14px center no-repeat; }
+  .reset { height: 44px; border: 1px solid var(--line); background: transparent; border-radius: 12px; padding: 0 16px; font: 700 13px var(--sans); color: var(--ink-soft); cursor: pointer; }
+  .reset:hover { background: #fff; }
+  .count { margin: 0 0 14px; color: var(--ink-soft); font-size: 14px; font-weight: 600; }
+
+  /* ---------- Cards ---------- */
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 22px; }
+  .card { display: flex; flex-direction: column; background: var(--card); border-radius: var(--radius); overflow: hidden; box-shadow: 0 2px 4px rgba(15,43,70,.05), 0 12px 28px rgba(15,43,70,.07); transition: box-shadow .2s, transform .2s; }
+  .card:hover { transform: translateY(-3px); box-shadow: 0 4px 8px rgba(15,43,70,.06), 0 20px 40px rgba(15,43,70,.13); }
+  .photo { position: relative; aspect-ratio: 16 / 10; background: #cfe0ec; overflow: hidden; }
+  .photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .pill { position: absolute; left: 12px; top: 12px; display: inline-flex; align-items: center; gap: 7px; background: rgba(255,255,255,.95); color: var(--ink); font-size: 12px; font-weight: 700; padding: 5px 11px; border-radius: 999px; max-width: calc(100% - 24px); }
+  .pill i { width: 8px; height: 8px; border-radius: 50%; flex: none; }
+  .pill span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .body { display: flex; flex-direction: column; gap: 12px; padding: 18px 20px 20px; flex: 1; }
+  .card h3 { margin: 0; font-family: var(--serif); font-size: 19px; line-height: 1.3; font-weight: 600; display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
+  .tags { display: flex; flex-wrap: wrap; gap: 6px; }
+  .tags span { background: #eaf2f7; color: var(--ink-soft); font-size: 12px; font-weight: 600; padding: 3px 10px; border-radius: 8px; }
+  .foot { margin-top: auto; padding-top: 14px; border-top: 1px solid var(--line); display: flex; justify-content: space-between; align-items: center; gap: 10px; font-size: 13px; }
+  .foot .src { color: var(--ink-soft); min-width: 0; }
+  .foot .src b { display: block; color: var(--ink); font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .open { flex: none; text-decoration: none; background: var(--ink); color: #fff; font-weight: 700; font-size: 13px; padding: 8px 14px; border-radius: 999px; transition: background .15s; }
+  .open:hover { background: var(--teal-dark); }
+  .card.lead { grid-column: span 2; flex-direction: row; }
+  .card.lead .photo { flex: 1.15; aspect-ratio: auto; min-height: 300px; }
+  .card.lead .body { flex: 1; justify-content: center; padding: 28px; }
+  .card.lead h3 { font-size: 27px; -webkit-line-clamp: 6; }
+
+  /* ---------- States ---------- */
+  .skeleton { height: 330px; border-radius: var(--radius); background: linear-gradient(100deg, #e3ebf2 30%, #f2f6f9 50%, #e3ebf2 70%) 0 0 / 200% 100%; animation: shimmer 1.4s linear infinite; }
+  @keyframes shimmer { to { background-position: -200% 0; } }
+  .msg { grid-column: 1 / -1; text-align: center; background: #fff; border-radius: var(--radius); padding: 48px 24px; color: var(--ink-soft); }
+  .msg strong { color: var(--ink); display: block; font-family: var(--serif); font-size: 20px; margin-bottom: 6px; }
+  .msg.error { border: 1px solid #f0c4c0; background: #fff6f5; }
+  .note { margin-top: 36px; font-size: 13px; color: var(--ink-soft); max-width: 70ch; }
+  .footer { margin-top: 12px; font-size: 12px; color: #7c8da0; }
+
+  @media (max-width: 980px) { .bar-inner { grid-template-columns: 1fr 1fr; } .bar-inner > :first-child { grid-column: 1 / -1; } .card.lead { grid-column: auto; flex-direction: column; } .card.lead .photo { min-height: 0; aspect-ratio: 16 / 10; } .card.lead .body { padding: 18px 20px 20px; } .card.lead h3 { font-size: 21px; } }
+  @media (max-width: 720px) { .stats { grid-template-columns: repeat(2, 1fr); } .hero { padding: 32px 18px 90px; } main { padding: 0 18px 40px; } .bar { margin: 22px -18px 16px; padding: 10px 18px; } }
+  @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; scroll-behavior: auto !important; } }
+</style>
 </head>
 <body>
-  <header class="topbar">
-    <div class="top-inner">
-      <div class="brand">
-        <div class="logo" aria-hidden="true">✈</div>
-        <div>
-          <div class="eyebrow">Sri Lanka · Research & Intelligence</div>
-          <h1>Aviation News Dashboard</h1>
-          <div class="subtitle">A focused view of aviation developments and industry updates</div>
-        </div>
-      </div>
-      <button class="refresh-btn" id="refreshBtn" onclick="loadDashboard()">↻ &nbsp;Refresh data</button>
+<header class="hero">
+  <svg class="trail" viewBox="0 0 780 320" preserveAspectRatio="xMaxYMid slice" aria-hidden="true">
+    <defs><linearGradient id="ct" x1="0" x2="1"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#fff" stop-opacity=".55"/></linearGradient></defs>
+    <path d="M0 290 C 240 270, 440 190, 640 90" stroke="url(#ct)" stroke-width="5" fill="none" stroke-linecap="round"/>
+    <path d="M40 310 C 260 292, 450 214, 650 112" stroke="url(#ct)" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+    <g transform="translate(650 84) rotate(-27)" fill="#fff"><path d="M0 -6 L46 -4 Q60 0 46 4 L0 6 Z"/><path d="M14 -3 L-8 -38 L2 -38 L30 -3 Z"/><path d="M14 3 L-8 38 L2 38 L30 3 Z"/><path d="M-4 -3 L-14 -16 L-8 -16 L4 -3 Z"/><path d="M-4 3 L-14 16 L-8 16 L4 3 Z"/></g>
+    <circle cx="520" cy="60" r="2" fill="#fff" opacity=".6"/><circle cx="300" cy="40" r="1.5" fill="#fff" opacity=".5"/><circle cx="720" cy="220" r="2" fill="#fff" opacity=".5"/>
+  </svg>
+  <div class="hero-inner">
+    <div>
+      <h1>Sri Lanka Aviation Watch</h1>
+      <p>Daily airline, airport and regulatory news from trusted aviation sources, in one place.</p>
     </div>
-  </header>
+    <button class="refresh" id="refreshBtn" onclick="loadDashboard()">Refresh data</button>
+  </div>
+</header>
 
-  <main>
-    <section class="stats" aria-label="Dashboard statistics">
-      <div class="stat"><div class="stat-label">Articles in view</div><div class="stat-value" id="totalStat">—</div><div class="stat-foot">Latest 1,000 stored records maximum</div></div>
-      <div class="stat"><div class="stat-label">Published in last 24 hours</div><div class="stat-value" id="recentStat">—</div><div class="stat-foot">Based on publication timestamps</div></div>
-      <div class="stat"><div class="stat-label">Publishers represented</div><div class="stat-value" id="publisherStat">—</div><div class="stat-foot">Across loaded records</div></div>
-      <div class="stat"><div class="stat-label">News categories</div><div class="stat-value" id="categoryStat">—</div><div class="stat-foot">Categories represented</div></div>
-    </section>
+<main>
+  <section class="stats" aria-label="Summary">
+    <div class="stat"><b id="totalStat">–</b><span>Articles</span></div>
+    <div class="stat"><b id="recentStat">–</b><span>Last 24 hours</span></div>
+    <div class="stat"><b id="publisherStat">–</b><span>Publishers</span></div>
+    <div class="stat"><b id="categoryStat">–</b><span>Categories</span></div>
+  </section>
 
-    <div class="section-head">
-      <div>
-        <h2>Article library</h2>
-        <p>Search, filter, and open the original publisher article.</p>
-      </div>
-      <div class="result-count" id="resultCount">Loading articles…</div>
+  <section class="bar" aria-label="Filters">
+    <div class="bar-inner">
+      <input id="searchInput" type="search" placeholder="Search headlines, publishers, countries" aria-label="Search" oninput="applyFilters()">
+      <select id="categoryFilter" aria-label="Category" onchange="applyFilters()"><option value="">All categories</option></select>
+      <select id="regionFilter" aria-label="Region" onchange="applyFilters()"><option value="">All regions</option></select>
+      <select id="periodFilter" aria-label="Period" onchange="applyFilters()">
+        <option value="all">Any date</option><option value="24">Last 24 hours</option><option value="72">Last 3 days</option><option value="168">Last 7 days</option><option value="720">Last 30 days</option>
+      </select>
+      <button class="reset" onclick="resetFilters()">Reset</button>
     </div>
+  </section>
 
-    <section class="filters" aria-label="Article filters">
-      <div class="field search">
-        <label for="searchInput">Search</label>
-        <input id="searchInput" type="search" placeholder="Headline, publisher, country…" oninput="applyFilters()">
-      </div>
-      <div class="field">
-        <label for="categoryFilter">Category</label>
-        <select id="categoryFilter" onchange="applyFilters()"><option value="">All categories</option></select>
-      </div>
-      <div class="field">
-        <label for="regionFilter">Region</label>
-        <select id="regionFilter" onchange="applyFilters()"><option value="">All regions</option></select>
-      </div>
-      <div class="field">
-        <label for="periodFilter">Publication period</label>
-        <select id="periodFilter" onchange="applyFilters()">
-          <option value="all">All available</option>
-          <option value="24">Last 24 hours</option>
-          <option value="72">Last 3 days</option>
-          <option value="168">Last 7 days</option>
-          <option value="720">Last 30 days</option>
-        </select>
-      </div>
-      <div class="reset-wrap"><button class="reset-btn" onclick="resetFilters()">Reset filters</button></div>
-    </section>
+  <p class="count" id="resultCount">Loading…</p>
+  <section class="grid" id="articleGrid" aria-live="polite">
+    <div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div>
+  </section>
 
-    <div class="notice">
-      <span aria-hidden="true">ⓘ</span>
-      <div><strong>Source note:</strong> Publisher and relevance checks are automated. They do not independently verify every claim in an article. Review the original source before relying on important announcements. Links are the URLs stored in the news database.</div>
-    </div>
+  <p class="note">Publisher and relevance checks are automated and do not verify every claim. Please read the original article before relying on important announcements.</p>
+  <div class="footer" id="footerText"></div>
+</main>
 
-    <section class="article-grid" id="articleGrid" aria-live="polite">
-      <div class="loading"><div class="big">◌</div>Loading the latest news…</div>
-    </section>
-    <div class="footer" id="footerText">Aviation Intelligence · Internal team dashboard</div>
-  </main>
+<script>
+  // PASTE your Apps Script web app URL here (ends with /exec)
+  const API_URL = "https://script.google.com/macros/s/AKfycbysSI1gkrbgL30lrktGCDoypFJ6nZiOR9Kk1GiOeBGr6YPLnj4i_WqnLdPgSfc67KG5/exec";
 
-  <script>
-    let allArticles = [];
-    // PASTE your Apps Script web app URL here (ends with /exec)
-    const API_URL = "https://script.google.com/macros/s/AKfycbysSI1gkrbgL30lrktGCDoypFJ6nZiOR9Kk1GiOeBGr6YPLnj4i_WqnLdPgSfc67KG5/exec";
+  let allArticles = [];
+  let dashboardStats = {};
+  const DOT = ["#0e8f8a", "#e6a82b", "#1d5f8a", "#7a5cc4", "#d1495b", "#3b9c5a", "#c26a2d", "#5a6e82"];
 
-    let dashboardStats = {};
+  function hash(str) { let h = 0; for (let i = 0; i < str.length; i++) h = (h * 31 + str.charCodeAt(i)) | 0; return Math.abs(h); }
 
-    function loadDashboard() {
-      const btn = document.getElementById("refreshBtn");
-      btn.disabled = true;
-      btn.textContent = "Loading…";
-      document.getElementById("articleGrid").innerHTML = '<div class="loading"><div class="big">◌</div>Loading articles from the news database…</div>';
+  // Built-in default picture (no external file needed): a plane over a sky gradient, 4 colour variants.
+  function fallbackImage(seed) {
+    const skies = [["#1d5f8a", "#8fc7e8"], ["#0f2b46", "#3a8fb7"], ["#0e6f78", "#9adbd0"], ["#35508f", "#f1b88a"]];
+    const s = skies[hash(String(seed || "")) % skies.length];
+    const svg = "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 250' preserveAspectRatio='xMidYMid slice'>" +
+      "<defs><linearGradient id='g' x1='0' y1='0' x2='0' y2='1'><stop offset='0' stop-color='" + s[0] + "'/><stop offset='1' stop-color='" + s[1] + "'/></linearGradient></defs>" +
+      "<rect width='400' height='250' fill='url(#g)'/>" +
+      "<g fill='#fff' opacity='.28'><ellipse cx='70' cy='190' rx='70' ry='16'/><ellipse cx='120' cy='178' rx='48' ry='14'/><ellipse cx='330' cy='214' rx='80' ry='16'/><ellipse cx='290' cy='200' rx='46' ry='13'/></g>" +
+      "<path d='M20 215 C130 205 230 150 310 85' stroke='#fff' stroke-opacity='.5' stroke-width='4' fill='none' stroke-linecap='round'/>" +
+      "<g transform='translate(312 82) rotate(-30)' fill='#fff'><path d='M0 -5 L40 -3.5 Q52 0 40 3.5 L0 5 Z'/><path d='M12 -3 L-7 -33 L2 -33 L26 -3 Z'/><path d='M12 3 L-7 33 L2 33 L26 3 Z'/><path d='M-3 -3 L-12 -14 L-7 -14 L4 -3 Z'/><path d='M-3 3 L-12 14 L-7 14 L4 3 Z'/></g></svg>";
+    return "data:image/svg+xml;utf8," + encodeURIComponent(svg);
+  }
 
-      fetch(API_URL + (API_URL.indexOf("?") === -1 ? "?" : "&") + "action=data")
-        .then(function (r) {
-          if (!r.ok) throw new Error("Server returned HTTP " + r.status);
-          return r.json();
-        })
-        .then(function (payload) {
-          if (payload && payload.error) throw new Error(payload.error);
-          allArticles = payload.articles || [];
-          dashboardStats = payload.stats || {};
-          renderStats();
-          populateSelect("categoryFilter", payload.categories || [], "All categories");
-          populateSelect("regionFilter", payload.regions || [], "All regions");
-          applyFilters();
-          const updated = dashboardStats.lastUpdated ? formatDate(dashboardStats.lastUpdated) : "not available";
-          document.getElementById("footerText").textContent =
-            "Aviation Intelligence · Data refreshed " + updated +
-            (dashboardStats.capped ? " · Showing latest 1,000 records" : "");
-          btn.disabled = false;
-          btn.textContent = "↻  Refresh data";
-        })
-        .catch(function (error) {
-          document.getElementById("articleGrid").innerHTML =
-            '<div class="error"><strong>Could not load the news data.</strong><br>' +
-            escapeHtml(error && error.message ? error.message : String(error)) +
-            '<br><br>Check that API_URL is correct and the Apps Script web app is deployed for "Anyone".</div>';
-          btn.disabled = false;
-          btn.textContent = "↻  Try again";
-        });
-    }
+  function loadDashboard() {
+    const btn = document.getElementById("refreshBtn");
+    btn.disabled = true; btn.textContent = "Loading…";
+    document.getElementById("articleGrid").innerHTML = '<div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div>';
 
-    function renderStats() {
-      document.getElementById("totalStat").textContent = numberFormat(dashboardStats.total || 0);
-      document.getElementById("recentStat").textContent = numberFormat(dashboardStats.last24Hours || 0);
-      document.getElementById("publisherStat").textContent = numberFormat(dashboardStats.publishers || 0);
-      document.getElementById("categoryStat").textContent = numberFormat(dashboardStats.categories || 0);
-    }
-
-    function populateSelect(id, values, firstLabel) {
-      const select = document.getElementById(id);
-      const oldValue = select.value;
-      select.innerHTML = "";
-      const first = document.createElement("option");
-      first.value = "";
-      first.textContent = firstLabel;
-      select.appendChild(first);
-      values.forEach(function (value) {
-        const option = document.createElement("option");
-        option.value = value;
-        option.textContent = value;
-        select.appendChild(option);
+    fetch(API_URL + (API_URL.indexOf("?") === -1 ? "?" : "&") + "action=data")
+      .then(function (r) { if (!r.ok) throw new Error("Server returned HTTP " + r.status); return r.json(); })
+      .then(function (payload) {
+        if (payload && payload.error) throw new Error(payload.error);
+        allArticles = payload.articles || [];
+        dashboardStats = payload.stats || {};
+        renderStats();
+        populateSelect("categoryFilter", payload.categories || [], "All categories");
+        populateSelect("regionFilter", payload.regions || [], "All regions");
+        applyFilters();
+        const updated = dashboardStats.lastUpdated ? formatDate(dashboardStats.lastUpdated) : "n/a";
+        document.getElementById("footerText").textContent = "Data refreshed " + updated + (dashboardStats.capped ? " (latest 1,000 records)" : "");
+        btn.disabled = false; btn.textContent = "Refresh data";
+      })
+      .catch(function (error) {
+        document.getElementById("resultCount").textContent = "";
+        document.getElementById("articleGrid").innerHTML =
+          '<div class="msg error"><strong>Could not load the news data</strong>' + escapeHtml(error && error.message ? error.message : String(error)) +
+          '<br>Check that API_URL is correct and the Apps Script web app is deployed for "Anyone".</div>';
+        btn.disabled = false; btn.textContent = "Try again";
       });
-      if (values.indexOf(oldValue) >= 0) select.value = oldValue;
+  }
+
+  function renderStats() {
+    document.getElementById("totalStat").textContent = numberFormat(dashboardStats.total || 0);
+    document.getElementById("recentStat").textContent = numberFormat(dashboardStats.last24Hours || 0);
+    document.getElementById("publisherStat").textContent = numberFormat(dashboardStats.publishers || 0);
+    document.getElementById("categoryStat").textContent = numberFormat(dashboardStats.categories || 0);
+  }
+
+  function populateSelect(id, values, firstLabel) {
+    const select = document.getElementById(id), old = select.value;
+    select.innerHTML = "";
+    [""].concat(values).forEach(function (v) {
+      const o = document.createElement("option");
+      o.value = v; o.textContent = v || firstLabel; select.appendChild(o);
+    });
+    if (values.indexOf(old) >= 0) select.value = old;
+  }
+
+  function applyFilters() {
+    const q = document.getElementById("searchInput").value.trim().toLowerCase();
+    const category = document.getElementById("categoryFilter").value;
+    const region = document.getElementById("regionFilter").value;
+    const period = document.getElementById("periodFilter").value;
+    const cutoff = period === "all" ? 0 : Date.now() - Number(period) * 3600000;
+    renderArticles(allArticles.filter(function (a) {
+      const text = [a.headline, a.publisher, a.country, a.region, a.category].join(" ").toLowerCase();
+      const t = a.publishedAt ? new Date(a.publishedAt).getTime() : 0;
+      return (!q || text.indexOf(q) >= 0) && (!category || a.category === category) && (!region || a.region === region) && (!cutoff || (t && t >= cutoff));
+    }));
+  }
+
+  function renderArticles(articles) {
+    document.getElementById("resultCount").textContent = articles.length + (articles.length === 1 ? " article" : " articles");
+    const grid = document.getElementById("articleGrid");
+    if (!articles.length) {
+      grid.innerHTML = '<div class="msg"><strong>No matching articles</strong>Try a different search or reset the filters.</div>';
+      return;
     }
+    grid.innerHTML = articles.map(function (a, i) {
+      const cat = a.category || "Uncategorized";
+      const fb = fallbackImage(a.id || a.headline);
+      const img = a.imageUrl && /^https:\/\//i.test(a.imageUrl) ? a.imageUrl : fb;
+      const link = a.url
+        ? '<a class="open" href="' + escapeHtml(a.url) + '" target="_blank" rel="noopener noreferrer">Read article</a>'
+        : '<span class="src">No link</span>';
+      return '<article class="card' + (i === 0 ? ' lead' : '') + '">' +
+        '<div class="photo"><img src="' + escapeHtml(img) + '" data-fb="' + escapeHtml(fb) + '" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.onerror=null;this.src=this.dataset.fb">' +
+        '<div class="pill"><i style="background:' + DOT[hash(cat) % DOT.length] + '"></i><span>' + escapeHtml(cat) + '</span></div></div>' +
+        '<div class="body"><h3>' + escapeHtml(a.headline) + '</h3>' +
+        '<div class="tags"><span>' + escapeHtml(a.region || "Region n/a") + '</span><span>' + escapeHtml(a.country || "Country n/a") + '</span></div>' +
+        '<div class="foot"><div class="src"><b>' + escapeHtml(a.publisher || "Unknown publisher") + '</b>' + escapeHtml(a.publishedAt ? formatDate(a.publishedAt) : "Date unavailable") + '</div>' + link + '</div></div></article>';
+    }).join("");
+  }
 
-    function applyFilters() {
-      const query = document.getElementById("searchInput").value.trim().toLowerCase();
-      const category = document.getElementById("categoryFilter").value;
-      const region = document.getElementById("regionFilter").value;
-      const period = document.getElementById("periodFilter").value;
-      const cutoff = period === "all" ? 0 : Date.now() - Number(period) * 60 * 60 * 1000;
+  function resetFilters() {
+    document.getElementById("searchInput").value = "";
+    document.getElementById("categoryFilter").value = "";
+    document.getElementById("regionFilter").value = "";
+    document.getElementById("periodFilter").value = "all";
+    applyFilters();
+  }
 
-      const filtered = allArticles.filter(function (article) {
-        const searchable = [article.headline, article.publisher, article.country, article.region, article.category].join(" ").toLowerCase();
-        const timestamp = article.publishedAt ? new Date(article.publishedAt).getTime() : 0;
-        return (!query || searchable.indexOf(query) >= 0) &&
-          (!category || article.category === category) &&
-          (!region || article.region === region) &&
-          (!cutoff || (timestamp && timestamp >= cutoff));
-      });
-      renderArticles(filtered);
-    }
+  function formatDate(v) {
+    const d = new Date(v);
+    if (isNaN(d.getTime())) return "Date unavailable";
+    return new Intl.DateTimeFormat("en-GB", { timeZone: "Asia/Colombo", day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit", hour12: false }).format(d) + " SL time";
+  }
+  function numberFormat(v) { return new Intl.NumberFormat("en-US").format(v); }
+  function escapeHtml(v) {
+    return String(v == null ? "" : v).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; });
+  }
 
-    function renderArticles(articles) {
-      document.getElementById("resultCount").textContent =
-        articles.length + (articles.length === 1 ? " article" : " articles");
-      const grid = document.getElementById("articleGrid");
-      if (!articles.length) {
-        grid.innerHTML = '<div class="empty"><div class="big">⌕</div><strong>No matching articles</strong><br>Try changing your search or clearing a filter.</div>';
-        return;
-      }
-
-      grid.innerHTML = articles.map(function (article) {
-        const category = escapeHtml(article.category || "Uncategorized");
-        const headline = escapeHtml(article.headline || "Untitled article");
-        const publisher = escapeHtml(article.publisher || "Unknown publisher");
-        const date = article.publishedAt ? formatDate(article.publishedAt) : "Date unavailable";
-        const region = escapeHtml(article.region || "Region unspecified");
-        const country = escapeHtml(article.country || "Country not specified");
-        const link = article.url
-          ? '<a class="read-link" href="' + escapeHtml(article.url) + '" target="_blank" rel="noopener noreferrer">Read original article <span aria-hidden="true">↗</span></a>'
-          : '<span class="read-link" style="color:#8995a4">No valid article link</span>';
-
-        const thumb = article.imageUrl && /^https:\/\//i.test(article.imageUrl)
-          ? '<div class="thumb"><img src="' + escapeHtml(article.imageUrl) + '" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.parentNode.remove()"></div>'
-          : '';
-
-        return '<article class="article">' + thumb +
-          '<div class="article-top"><span class="category">' + category + '</span><span class="date">' + escapeHtml(date) + '</span></div>' +
-          '<h3>' + headline + '</h3>' +
-          '<div class="meta"><span>◉ ' + region + '</span><span>◎ ' + country + '</span></div>' +
-          '<div class="article-bottom"><span class="publisher">' + publisher + '</span>' + link + '</div>' +
-          '</article>';
-      }).join("");
-    }
-
-    function resetFilters() {
-      document.getElementById("searchInput").value = "";
-      document.getElementById("categoryFilter").value = "";
-      document.getElementById("regionFilter").value = "";
-      document.getElementById("periodFilter").value = "all";
-      applyFilters();
-    }
-
-    function formatDate(value) {
-      const date = new Date(value);
-      if (isNaN(date.getTime())) return "Date unavailable";
-      return new Intl.DateTimeFormat("en-GB", {
-        timeZone: "Asia/Colombo", day: "2-digit", month: "short", year: "numeric",
-        hour: "2-digit", minute: "2-digit", hour12: false
-      }).format(date) + " SL";
-    }
-
-    function numberFormat(value) {
-      return new Intl.NumberFormat("en-US").format(value);
-    }
-
-    function escapeHtml(value) {
-      return String(value == null ? "" : value).replace(/[&<>"']/g, function (ch) {
-        return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[ch];
-      });
-    }
-
-    loadDashboard();
-  </script>
+  loadDashboard();
+</script>
 </body>
 </html>
