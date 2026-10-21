@@ -92,16 +92,14 @@
   .progress i { display: block; height: 100%; width: 0; background: var(--gold); transition: width .1s ease-out; }
   .progress svg { position: absolute; top: 3px; left: 0; width: 24px; height: 18px; color: var(--gold); transform: translateX(-100%); transition: left .1s ease-out; filter: drop-shadow(0 1px 2px rgba(0,0,0,.3)); }
 
+  /* ---------- Radar Loader Animation ---------- */
   .loader { grid-column: 1 / -1; text-align: center; padding: 56px 24px 64px; color: var(--ink-soft); font-weight: 600; }
-  .runway { position: relative; height: 34px; max-width: 380px; margin: 0 auto 16px; border-bottom: 2px dashed #aebfce; overflow: hidden; }
-  .runway svg { position: absolute; bottom: -2px; left: -50px; width: 36px; height: 26px; color: var(--teal-dark); animation: smoothTakeoff 2.4s cubic-bezier(.4,0,.2,1) infinite; }
-  @keyframes smoothTakeoff {
-    0% { transform: translateX(0) translateY(0) rotate(0deg); opacity: 0; }
-    15% { opacity: 1; }
-    55% { transform: translateX(240px) translateY(0) rotate(0deg); }
-    85% { transform: translateX(380px) translateY(-18deg) rotate(-12deg); opacity: 1; }
-    100% { transform: translateX(440px) translateY(-28deg) rotate(-15deg); opacity: 0; }
-  }
+  .radar-container { position: relative; width: 80px; height: 80px; margin: 0 auto 18px; border: 2px solid var(--teal); border-radius: 50%; background: rgba(14, 143, 138, 0.05); overflow: hidden; box-shadow: 0 0 15px rgba(14, 143, 138, 0.15); }
+  .radar-container::before { content: ""; position: absolute; inset: 15px; border: 1px dashed rgba(14, 143, 138, 0.3); border-radius: 50%; }
+  .radar-sweep { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border-radius: 50%; background: conic-gradient(from 0deg at 50% 50%, rgba(14, 143, 138, 0.4) 0deg, transparent 60deg, transparent 360deg); animation: radarSpin 2s linear infinite; }
+  .radar-blip { position: absolute; top: 28px; left: 48px; width: 6px; height: 6px; background: var(--gold); border-radius: 50%; box-shadow: 0 0 6px var(--gold); animation: blipFade 2s ease-in-out infinite; }
+  @keyframes radarSpin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+  @keyframes blipFade { 0%, 60%, 100% { opacity: 0.2; } 20% { opacity: 1; } }
 
   .enter { opacity: 0; transform: translateY(16px) scale(.98); animation: cardIn .5s cubic-bezier(.16,1,.3,1) forwards; }
   @keyframes cardIn { to { opacity: 1; transform: translateY(0) scale(1); } }
@@ -172,7 +170,7 @@
 
   <p class="count" id="resultCount">Loading…</p>
   <section class="grid" id="articleGrid" aria-live="polite">
-    <div class="loader"><div class="runway"><svg aria-hidden="true"><use href="#plane"/></svg></div>Checking the skies for news…</div>
+    <div class="loader"><div class="radar-container"><div class="radar-sweep"></div><div class="radar-blip"></div></div>Checking the skies for news…</div>
   </section>
 
   <p class="note">Publisher and relevance checks are automated and do not verify every claim. Please read the original article before relying on important announcements.</p>
@@ -270,7 +268,7 @@
     const btn = document.getElementById("refreshBtn");
     btn.disabled = true; 
     document.getElementById("refreshLabel").textContent = "Loading…";
-    document.getElementById("articleGrid").innerHTML = '<div class="loader"><div class="runway"><svg aria-hidden="true"><use href="#plane"/></svg></div>Checking the skies for news…</div>';
+    document.getElementById("articleGrid").innerHTML = '<div class="loader"><div class="radar-container"><div class="radar-sweep"></div><div class="radar-blip"></div></div>Checking the skies for news…</div>';
     btn.classList.add("busy"); 
     animateNext = true;
 
