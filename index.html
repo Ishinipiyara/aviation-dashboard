@@ -80,7 +80,7 @@
   .read-link:hover { background: var(--teal-dark); transform: scale(1.03); }
   .share { flex: none; width: 34px; height: 34px; display: inline-grid; place-items: center; border: 1px solid var(--line); background: #fff; color: var(--ink); border-radius: 50%; cursor: pointer; padding: 0; transition: background .2s, color .2s, border-color .2s, transform .2s; }
   .share svg { width: 16px; height: 16px; }
-  .share:hover { background: var(--teal); border-color: var(--teal); color: #fff; transform: scale(1.06); }
+  .share:hover, .share:focus-visible { background: var(--ink); border-color: var(--ink); color: #fff; transform: scale(1.06); }
   .card.lead { grid-column: span 2; flex-direction: row; }
   .card.lead .photo { flex: 1.15; aspect-ratio: auto; min-height: 300px; }
   .card.lead .body { flex: 1; justify-content: center; padding: 28px; }
@@ -422,9 +422,7 @@
     const items = [
       { label: "Copy link", color: "#0f2b46", icon: "\u29C9", action: "copy" },
       { label: "WhatsApp", color: "#25d366", icon: "W", href: "https://wa.me/?text=" + t + "%20" + u },
-      { label: "Telegram", color: "#229ed9", icon: "T", href: "https://t.me/share/url?url=" + u + "&text=" + t },
       { label: "Facebook", color: "#1877f2", icon: "f", href: "https://www.facebook.com/sharer/sharer.php?u=" + u },
-      { label: "X (Twitter)", color: "#111", icon: "X", href: "https://twitter.com/intent/tweet?url=" + u + "&text=" + t },
       { label: "LinkedIn", color: "#0a66c2", icon: "in", href: "https://www.linkedin.com/sharing/share-offsite/?url=" + u },
       { label: "Email", color: "#d1495b", icon: "@", href: "mailto:?subject=" + t + "&body=" + t + "%0A%0A" + u }
     ];
