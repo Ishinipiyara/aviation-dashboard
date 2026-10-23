@@ -88,7 +88,7 @@
 
   /* ---------- Share menu ---------- */
   .share-menu { position: fixed; z-index: 40; min-width: 220px; background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 6px; box-shadow: 0 16px 40px rgba(15,43,70,.22); display: none; }
-  .share-menu.open { display: block; animation: menuIn .16s ease-out; }
+  .share-menu.is-open { display: block; animation: menuIn .16s ease-out; }
   @keyframes menuIn { from { opacity: 0; transform: translateY(-6px) scale(.98); } to { opacity: 1; transform: none; } }
   .share-menu button, .share-menu a { display: flex; align-items: center; gap: 12px; width: 100%; padding: 10px 12px; border: 0; background: transparent; border-radius: 10px; font: 600 14px var(--sans); color: var(--ink); text-align: left; text-decoration: none; cursor: pointer; }
   .share-menu button:hover, .share-menu a:hover, .share-menu button:focus-visible, .share-menu a:focus-visible { background: #eef3f7; }
@@ -406,7 +406,7 @@
     const btn = e.target.closest(".share");
     if (!btn) return;
     e.stopPropagation();
-    if (menu.classList.contains("open") && menuOpener === btn) { closeMenu(); return; }
+    if (menu.classList.contains("is-open") && menuOpener === btn) { closeMenu(); return; }
     const a = shownArticles[Number(btn.dataset.idx)];
     if (a) openMenu(a, btn);
   });
@@ -437,7 +437,7 @@
       html += '<hr><button type="button" role="menuitem" data-action="native"><i style="background:#52667a">\u2026</i>More options\u2026</button>';
     }
     menu.innerHTML = html;
-    menu.classList.add("open");
+    menu.classList.add("is-open");
 
     const r = btn.getBoundingClientRect(), w = menu.offsetWidth, h = menu.offsetHeight;
     let left = Math.min(Math.max(8, r.right - w), window.innerWidth - w - 8);
@@ -448,8 +448,8 @@
   }
 
   function closeMenu() {
-    if (!menu.classList.contains("open")) return;
-    menu.classList.remove("open");
+    if (!menu.classList.contains("is-open")) return;
+    menu.classList.remove("is-open");
     if (menuOpener) menuOpener.focus({ preventScroll: true });
     menuOpener = null;
   }
