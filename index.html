@@ -3,7 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0f2b46">
 <title>Sri Lanka Aviation Watch</title>
+<!-- Favicon: inline SVG (navy tile with a gold plane). No extra file needed. -->
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f2b46'/%3E%3Cg transform='translate(32 32) rotate(-35) scale(.55) translate(-22 0)' fill='%23e6a82b'%3E%3Cpath d='M0 -6 L46 -4 Q60 0 46 4 L0 6 Z'/%3E%3Cpath d='M14 -3 L-8 -38 L2 -38 L30 -3 Z'/%3E%3Cpath d='M14 3 L-8 38 L2 38 L30 3 Z'/%3E%3Cpath d='M-4 -3 L-14 -16 L-8 -16 L4 -3 Z'/%3E%3Cpath d='M-4 3 L-14 16 L-8 16 L4 3 Z'/%3E%3C/g%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -72,12 +75,30 @@
   .foot { margin-top: auto; padding-top: 14px; border-top: 1px solid var(--line); display: flex; justify-content: space-between; align-items: center; gap: 10px; font-size: 13px; }
   .foot .src { color: var(--ink-soft); min-width: 0; }
   .foot .src b { display: block; color: var(--ink); font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .actions { display: flex; align-items: center; gap: 8px; flex: none; }
   .open { flex: none; text-decoration: none; background: var(--ink); color: #fff; font-weight: 700; font-size: 13px; padding: 8px 14px; border-radius: 999px; transition: background .2s, transform .2s; }
   .open:hover { background: var(--teal-dark); transform: scale(1.03); }
+  .share { flex: none; width: 34px; height: 34px; display: inline-grid; place-items: center; border: 1px solid var(--line); background: #fff; color: var(--ink); border-radius: 50%; cursor: pointer; padding: 0; transition: background .2s, color .2s, border-color .2s, transform .2s; }
+  .share svg { width: 16px; height: 16px; }
+  .share:hover { background: var(--teal); border-color: var(--teal); color: #fff; transform: scale(1.06); }
   .card.lead { grid-column: span 2; flex-direction: row; }
   .card.lead .photo { flex: 1.15; aspect-ratio: auto; min-height: 300px; }
   .card.lead .body { flex: 1; justify-content: center; padding: 28px; }
   .card.lead h3 { font-size: 26px; -webkit-line-clamp: 6; }
+
+  /* ---------- Share menu ---------- */
+  .share-menu { position: fixed; z-index: 40; min-width: 220px; background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 6px; box-shadow: 0 16px 40px rgba(15,43,70,.22); display: none; }
+  .share-menu.open { display: block; animation: menuIn .16s ease-out; }
+  @keyframes menuIn { from { opacity: 0; transform: translateY(-6px) scale(.98); } to { opacity: 1; transform: none; } }
+  .share-menu button, .share-menu a { display: flex; align-items: center; gap: 12px; width: 100%; padding: 10px 12px; border: 0; background: transparent; border-radius: 10px; font: 600 14px var(--sans); color: var(--ink); text-align: left; text-decoration: none; cursor: pointer; }
+  .share-menu button:hover, .share-menu a:hover, .share-menu button:focus-visible, .share-menu a:focus-visible { background: #eef3f7; }
+  .share-menu i { width: 26px; height: 26px; border-radius: 50%; display: inline-grid; place-items: center; flex: none; font: 700 12px var(--sans); font-style: normal; color: #fff; }
+  .share-menu hr { border: 0; border-top: 1px solid var(--line); margin: 4px 6px; }
+  @media (max-width: 560px) { .share-menu { left: 12px !important; right: 12px; top: auto !important; bottom: 12px; width: auto; border-radius: 18px; padding: 10px; } }
+
+  /* ---------- Toast ---------- */
+  .toast { position: fixed; left: 50%; bottom: 28px; transform: translate(-50%, 20px); background: var(--ink); color: #fff; font-weight: 600; font-size: 14px; padding: 11px 20px; border-radius: 999px; box-shadow: 0 10px 30px rgba(0,0,0,.25); opacity: 0; pointer-events: none; transition: opacity .25s ease, transform .25s ease; z-index: 30; max-width: calc(100vw - 32px); }
+  .toast.show { opacity: 1; transform: translate(-50%, 0); }
 
   /* ---------- Clean Motion & Animations ---------- */
   .clouds { position: absolute; inset: 0; pointer-events: none; overflow: hidden; z-index: 1; }
@@ -117,7 +138,10 @@
 </style>
 </head>
 <body>
-<svg width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="plane" viewBox="-16 -40 76 80"><g fill="currentColor"><path d="M0 -6 L46 -4 Q60 0 46 4 L0 6 Z"/><path d="M14 -3 L-8 -38 L2 -38 L30 -3 Z"/><path d="M14 3 L-8 38 L2 38 L30 3 Z"/><path d="M-4 -3 L-14 -16 L-8 -16 L4 -3 Z"/><path d="M-4 3 L-14 16 L-8 16 L4 3 Z"/></g></symbol></svg>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="plane" viewBox="-16 -40 76 80"><g fill="currentColor"><path d="M0 -6 L46 -4 Q60 0 46 4 L0 6 Z"/><path d="M14 -3 L-8 -38 L2 -38 L30 -3 Z"/><path d="M14 3 L-8 38 L2 38 L30 3 Z"/><path d="M-4 -3 L-14 -16 L-8 -16 L4 -3 Z"/><path d="M-4 3 L-14 16 L-8 16 L4 3 Z"/></g></symbol>
+  <symbol id="share-icon" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></g></symbol>
+</svg>
 <div class="progress" aria-hidden="true"><i id="progBar"></i><svg id="progPlane"><use href="#plane"/></svg></div>
 <header class="hero">
   <div class="clouds" aria-hidden="true"><div class="cloud"></div><div class="cloud"></div><div class="cloud"></div></div>
@@ -130,7 +154,6 @@
       </linearGradient>
     </defs>
     <path id="fp" d="M -50 280 Q 250 240, 500 120 T 850 30" fill="none"/>
-    <!-- Soft fading contrail stroke -->
     <path stroke="url(#vaporTrail)" stroke-width="3.5" fill="none" stroke-linecap="round" d="M -50 280 Q 250 240, 500 120 T 850 30"/>
     <g fill="#fff">
       <use href="#plane" transform="scale(0.75)"/>
@@ -177,11 +200,14 @@
   <div class="footer" id="footerText"></div>
 </main>
 
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
 <script>
   // PASTE your Apps Script web app URL here (ends with /exec)
   const API_URL = "https://script.google.com/macros/s/AKfycbysSI1gkrbgL30lrktGCDoypFJ6nZiOR9Kk1GiOeBGr6YPLnj4i_WqnLdPgSfc67KG5/exec";
 
   let allArticles = [];
+  let shownArticles = [];
   let animateNext = true;
   const REDUCE = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
   let dashboardStats = {};
@@ -192,8 +218,8 @@
   // Category-driven high quality default SVG images
   function fallbackImage(category, seed) {
     const catKey = (category || "").toLowerCase();
-    
-    let skyGrad = ["#0f2b46", "#1d5f8a"]; 
+
+    let skyGrad = ["#0f2b46", "#1d5f8a"];
     let accent = "#e6a82b";
     let iconGraphics = "";
 
@@ -266,10 +292,10 @@
 
   function loadDashboard() {
     const btn = document.getElementById("refreshBtn");
-    btn.disabled = true; 
+    btn.disabled = true;
     document.getElementById("refreshLabel").textContent = "Loading…";
     document.getElementById("articleGrid").innerHTML = '<div class="loader"><div class="radar-container"><div class="radar-sweep"></div><div class="radar-blip"></div></div>Checking the skies for news…</div>';
-    btn.classList.add("busy"); 
+    btn.classList.add("busy");
     animateNext = true;
 
     fetch(API_URL + (API_URL.indexOf("?") === -1 ? "?" : "&") + "action=data")
@@ -329,7 +355,7 @@
     const region = document.getElementById("regionFilter").value;
     const period = document.getElementById("periodFilter").value;
     const cutoff = period === "all" ? 0 : Date.now() - Number(period) * 3600000;
-    
+
     renderArticles(allArticles.filter(function (a) {
       const text = [a.headline, a.publisher, a.country, a.region, a.category].join(" ").toLowerCase();
       const t = a.publishedAt ? new Date(a.publishedAt).getTime() : 0;
@@ -338,30 +364,139 @@
   }
 
   function renderArticles(articles) {
+    shownArticles = articles;
     document.getElementById("resultCount").textContent = articles.length + (articles.length === 1 ? " article" : " articles");
     const grid = document.getElementById("articleGrid");
     if (!articles.length) {
       grid.innerHTML = '<div class="msg"><strong>No matching articles</strong>Try a different search or reset the filters.</div>';
       return;
     }
-    const enter = animateNext && !REDUCE; 
+    const enter = animateNext && !REDUCE;
     animateNext = false;
 
     grid.innerHTML = articles.map(function (a, i) {
       const cat = a.category || "Uncategorized";
       const fb = fallbackImage(cat, a.id || a.headline);
       const img = a.imageUrl && /^https:\/\//i.test(a.imageUrl) ? a.imageUrl : fb;
-      const link = a.url
-        ? '<a class="open" href="' + escapeHtml(a.url) + '" target="_blank" rel="noopener noreferrer">Read article</a>'
+      const actions = a.url
+        ? '<div class="actions">' +
+            '<button type="button" class="share" data-idx="' + i + '" aria-label="Share this article" aria-haspopup="menu" title="Share">' +
+              '<svg aria-hidden="true"><use href="#share-icon"/></svg></button>' +
+            '<a class="open" href="' + escapeHtml(a.url) + '" target="_blank" rel="noopener noreferrer">Read article</a>' +
+          '</div>'
         : '<span class="src">No link</span>';
-        
+
       return '<article class="card' + (i === 0 ? ' lead' : '') + (enter ? ' enter' : '') + '"' + (enter ? ' style="animation-delay:' + Math.min(i, 10) * 50 + 'ms"' : '') + '>' +
         '<div class="photo"><img src="' + escapeHtml(img) + '" data-fb="' + escapeHtml(fb) + '" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.onerror=null;this.src=this.dataset.fb">' +
         '<div class="pill"><i style="background:' + DOT[hash(cat) % DOT.length] + '"></i><span>' + escapeHtml(cat) + '</span></div></div>' +
         '<div class="body"><h3>' + escapeHtml(a.headline) + '</h3>' +
         '<div class="tags"><span>' + escapeHtml(a.region || "Region n/a") + '</span><span>' + escapeHtml(a.country || "Country n/a") + '</span></div>' +
-        '<div class="foot"><div class="src"><b>' + escapeHtml(a.publisher || "Unknown publisher") + '</b>' + escapeHtml(a.publishedAt ? formatDate(a.publishedAt) : "Date unavailable") + '</div>' + link + '</div></div></article>';
+        '<div class="foot"><div class="src"><b>' + escapeHtml(a.publisher || "Unknown publisher") + '</b>' + escapeHtml(a.publishedAt ? formatDate(a.publishedAt) : "Date unavailable") + '</div>' + actions + '</div></div></article>';
     }).join("");
+  }
+
+  // ---------- Share ----------
+  const menu = document.createElement("div");
+  menu.className = "share-menu";
+  menu.setAttribute("role", "menu");
+  document.body.appendChild(menu);
+  let menuArticle = null, menuOpener = null;
+
+  document.getElementById("articleGrid").addEventListener("click", function (e) {
+    const btn = e.target.closest(".share");
+    if (!btn) return;
+    e.stopPropagation();
+    if (menu.classList.contains("open") && menuOpener === btn) { closeMenu(); return; }
+    const a = shownArticles[Number(btn.dataset.idx)];
+    if (a) openMenu(a, btn);
+  });
+  document.addEventListener("click", function (e) { if (!menu.contains(e.target)) closeMenu(); });
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape") closeMenu(); });
+  window.addEventListener("scroll", closeMenu, { passive: true });
+  window.addEventListener("resize", closeMenu);
+
+  function openMenu(a, btn) {
+    menuArticle = a; menuOpener = btn;
+    const u = encodeURIComponent(a.url), t = encodeURIComponent(a.headline);
+    const items = [
+      { label: "Copy link", color: "#0f2b46", icon: "\u29C9", action: "copy" },
+      { label: "WhatsApp", color: "#25d366", icon: "W", href: "https://wa.me/?text=" + t + "%20" + u },
+      { label: "Telegram", color: "#229ed9", icon: "T", href: "https://t.me/share/url?url=" + u + "&text=" + t },
+      { label: "Facebook", color: "#1877f2", icon: "f", href: "https://www.facebook.com/sharer/sharer.php?u=" + u },
+      { label: "X (Twitter)", color: "#111", icon: "X", href: "https://twitter.com/intent/tweet?url=" + u + "&text=" + t },
+      { label: "LinkedIn", color: "#0a66c2", icon: "in", href: "https://www.linkedin.com/sharing/share-offsite/?url=" + u },
+      { label: "Email", color: "#d1495b", icon: "@", href: "mailto:?subject=" + t + "&body=" + t + "%0A%0A" + u }
+    ];
+    let html = items.map(function (it) {
+      const ic = '<i style="background:' + it.color + '">' + it.icon + '</i>';
+      return it.action
+        ? '<button type="button" role="menuitem" data-action="' + it.action + '">' + ic + it.label + '</button>'
+        : '<a role="menuitem" href="' + escapeHtml(it.href) + '" target="_blank" rel="noopener noreferrer" data-close>' + ic + it.label + '</a>';
+    }).join("");
+    if (navigator.share) {
+      html += '<hr><button type="button" role="menuitem" data-action="native"><i style="background:#52667a">\u2026</i>More options\u2026</button>';
+    }
+    menu.innerHTML = html;
+    menu.classList.add("open");
+
+    const r = btn.getBoundingClientRect(), w = menu.offsetWidth, h = menu.offsetHeight;
+    let left = Math.min(Math.max(8, r.right - w), window.innerWidth - w - 8);
+    let top = r.bottom + 8;
+    if (top + h > window.innerHeight - 8) top = Math.max(8, r.top - h - 8);
+    menu.style.left = left + "px"; menu.style.top = top + "px";
+    const first = menu.querySelector("button,a"); if (first) first.focus();
+  }
+
+  function closeMenu() {
+    if (!menu.classList.contains("open")) return;
+    menu.classList.remove("open");
+    if (menuOpener) menuOpener.focus({ preventScroll: true });
+    menuOpener = null;
+  }
+
+  menu.addEventListener("click", async function (e) {
+    const el = e.target.closest("[data-action],[data-close]");
+    if (!el || !menuArticle) return;
+    const a = menuArticle, action = el.dataset.action;
+    if (action === "copy") {
+      closeMenu();
+      showToast((await copyText(a.url)) ? "Link copied to clipboard" : "Could not copy. Long-press the link to copy it.");
+    } else if (action === "native") {
+      closeMenu();
+      try { await navigator.share({ title: a.headline, text: a.headline, url: a.url }); }
+      catch (err) { if (!err || err.name !== "AbortError") showToast((await copyText(a.url)) ? "Link copied to clipboard" : "Sharing failed"); }
+    } else {
+      closeMenu(); // link opens in a new tab
+    }
+  });
+
+  async function copyText(text) {
+    try {
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(text);
+        return true;
+      }
+    } catch (e) { /* use fallback below */ }
+    try {
+      const ta = document.createElement("textarea");
+      ta.value = text;
+      ta.setAttribute("readonly", "");
+      ta.style.cssText = "position:fixed;top:-1000px;opacity:0";
+      document.body.appendChild(ta);
+      ta.select();
+      const ok = document.execCommand("copy");
+      document.body.removeChild(ta);
+      return ok;
+    } catch (e) { return false; }
+  }
+
+  let toastTimer;
+  function showToast(message) {
+    const t = document.getElementById("toast");
+    t.textContent = message;
+    t.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { t.classList.remove("show"); }, 2200);
   }
 
   function resetFilters() {
@@ -377,7 +512,7 @@
     if (isNaN(d.getTime())) return "Date unavailable";
     return new Intl.DateTimeFormat("en-GB", { timeZone: "Asia/Colombo", day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit", hour12: false }).format(d) + " SL time";
   }
-  
+
   function numberFormat(v) { return new Intl.NumberFormat("en-US").format(v); }
   function escapeHtml(v) {
     return String(v == null ? "" : v).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; });
