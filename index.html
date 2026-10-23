@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#0f2b46">
 <title>Sri Lanka Aviation Watch</title>
 <!-- Favicon: inline SVG (navy tile with a gold plane). No extra file needed. -->
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f2b46'/%3E%3Cg transform='translate(32 32) rotate(-35) scale(.55) translate(-22 0)' fill='%23e6a82b'%3E%3Cpath d='M0 -6 L46 -4 Q60 0 46 4 L0 6 Z'/%3E%3Cpath d='M14 -3 L-8 -38 L2 -38 L30 -3 Z'/%3E%3Cpath d='M14 3 L-8 38 L2 38 L30 3 Z'/%3E%3Cpath d='M-4 -3 L-14 -16 L-8 -16 L4 -3 Z'/%3E%3Cpath d='M-4 3 L-14 16 L-8 16 L4 3 Z'/%3E%3C/g%3E%3C/svg%3E">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f2b46'/%3E%3Cg transform='translate(32 32) rotate(-35) scale(.55) translate(-22 0)' fill='%23e6a82b'%3E%3Cpath d='M0 -6 L46 -4 Q60 0 46 4 L0 6 Z'/%3E%3Cpath d='M14 -3 L-8 -38 L2 -38 L30 -3 Z'/%3E%3Cpath d='M14 3 L-8 38 L2 38 L30 3 Z'/%3E%3Cpath d='M-4 -3 L-14 -16 L-8 -16 L4 -3 Z'/%3E%3Cpath d='M-4 3 L-14 16 L-8 16 L4 -3 Z'/%3E%3C/g%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -18,9 +18,15 @@
     --hero-img: url("https://images.unsplash.com/photo-1690303767957-84f4643f7acc?auto=format&fit=crop&w=1800&q=70");
     --serif: "Fraunces", Georgia, "Times New Roman", serif;
     --sans: "Manrope", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+
+    /* Read article button styles */
+    --btn-bg: #0f2b46;
+    --btn-text: #ffffff;
+    --btn-hover-bg: #0a6f6b;
+    --btn-hover-text: #ffffff;
   }
 
-  /* Improved dark palette with high-contrast text to prevent greyed-out readability issues */
+  /* High-contrast Dark Theme */
   :root[data-theme="dark"] {
     color-scheme: dark;
     --ink: #f0f4f8;
@@ -33,6 +39,12 @@
     --gold: #f2bf55;
     --sky1: #0b1723;
     --sky2: #367fb0;
+
+    /* Clear, readable Read Article buttons in Dark Theme */
+    --btn-bg: #0e8f8a;
+    --btn-text: #ffffff;
+    --btn-hover-bg: #35c5ba;
+    --btn-hover-text: #0b1723;
   }
 
   * { box-sizing: border-box; }
@@ -44,12 +56,19 @@
   /* ---------- Hero ---------- */
   .hero { position: relative; overflow: hidden; color: #fff; background: linear-gradient(135deg, rgba(15,43,70,.88) 0%, rgba(29,95,138,.62) 60%, rgba(6,63,92,.55) 100%), var(--hero-img) center 45% / cover no-repeat, #0f2b46; padding: 44px 24px 96px; }
   .hero-inner { position: relative; max-width: 1180px; margin: 0 auto; display: flex; justify-content: space-between; align-items: flex-end; gap: 24px; flex-wrap: wrap; z-index: 2; }
-  .hero h1 { font-family: var(--serif); font-size: clamp(32px, 5.2vw, 56px); line-height: 1.05; margin: 0 0 12px; font-weight: 700; letter-spacing: -.01em; max-width: 14em; }
-  .hero p { margin: 0; max-width: 34em; color: #cfe3f1; font-size: 16px; }
-  .refresh { background: #fff; color: var(--ink); border: 0; border-radius: 999px; padding: 12px 20px; font: 700 14px var(--sans); cursor: pointer; box-shadow: 0 6px 20px rgba(0,0,0,.18); transition: transform .2s cubic-bezier(.2,0,0,1), background-color .2s; display: inline-flex; align-items: center; gap: 8px; }
-  .refresh:hover { transform: translateY(-2px); }
+  .hero h1 { font-family: var(--serif); font-size: clamp(32px, 5.2vw, 56px); line-height: 1.05; margin: 0 0 12px; font-weight: 700; letter-spacing: -.01em; max-width: 14em; color: #ffffff; }
+  .hero p { margin: 0; max-width: 34em; color: #d0e4f5; font-size: 16px; }
+
+  /* Refresh Button (High contrast in light & dark) */
+  .refresh { background: #ffffff; color: #0f2b46; border: 0; border-radius: 999px; padding: 12px 20px; font: 700 14px var(--sans); cursor: pointer; box-shadow: 0 6px 20px rgba(0,0,0,.18); transition: transform .2s cubic-bezier(.2,0,0,1), background-color .2s; display: inline-flex; align-items: center; gap: 8px; }
+  .refresh:hover { transform: translateY(-2px); background-color: #f0f4f8; }
   .refresh:disabled { opacity: .7; cursor: wait; transform: none; }
-  .refresh svg { width: 18px; height: 18px; color: var(--teal-dark); transition: transform .3s; }
+  .refresh svg { width: 18px; height: 18px; color: #0a6f6b; transition: transform .3s; }
+  
+  :root[data-theme="dark"] .refresh { background: #f0f4f8; color: #0b1723; }
+  :root[data-theme="dark"] .refresh:hover { background: #ffffff; }
+  :root[data-theme="dark"] .refresh svg { color: #0a6f6b; }
+
   .hero-actions { display: flex; align-items: center; justify-content: flex-end; gap: 10px; flex-wrap: wrap; }
   
   /* Icon-only Theme Toggle Button */
@@ -129,8 +148,11 @@
   .foot .src { color: var(--ink-soft); min-width: 0; }
   .foot .src b { display: block; color: var(--ink); font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .actions { display: flex; align-items: center; gap: 8px; flex: none; }
-  .read-link { flex: none; text-decoration: none; background: var(--ink); color: #fff; font-weight: 700; font-size: 13px; padding: 8px 14px; border-radius: 999px; transition: background .2s, transform .2s; }
-  .read-link:hover { background: var(--teal-dark); transform: scale(1.03); }
+  
+  /* Read Link Button (Clear contrast text) */
+  .read-link { flex: none; text-decoration: none; background: var(--btn-bg); color: var(--btn-text); font-weight: 700; font-size: 13px; padding: 8px 14px; border-radius: 999px; transition: background .2s, color .2s, transform .2s; }
+  .read-link:hover { background: var(--btn-hover-bg); color: var(--btn-hover-text); transform: scale(1.03); }
+  
   .share { flex: none; width: 34px; height: 34px; display: inline-grid; place-items: center; border: 1px solid var(--line); background: #fff; color: var(--ink); border-radius: 50%; cursor: pointer; padding: 0; transition: background .2s, color .2s, border-color .2s, transform .2s; }
   .share svg { width: 16px; height: 16px; }
   .share:hover { background: var(--teal); border-color: var(--teal); color: #fff; transform: scale(1.06); }
@@ -279,7 +301,6 @@
     const catKey = (category || "").toLowerCase();
     let skyGrad = ["#0f2b46", "#1d5f8a"];
     let accent = "#e6a82b";
-    let iconGraphics = "";
 
     if (catKey.includes("airport") || catKey.includes("infrastructure")) {
       skyGrad = ["#113859", "#3a7bd5"];
