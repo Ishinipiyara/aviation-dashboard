@@ -73,11 +73,6 @@
   .card h3 { margin: 0; font-family: var(--serif); font-size: 19px; line-height: 1.3; font-weight: 600; display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
   .tags { display: flex; flex-wrap: wrap; gap: 6px; }
   .tags span { background: #eaf2f7; color: var(--ink-soft); font-size: 12px; font-weight: 600; padding: 3px 10px; border-radius: 8px; }
-  .event-badge { display: inline-flex; align-items: center; gap: 6px; width: fit-content; background: #fff4d8; color: #77510b; border: 1px solid #f2d58f; border-radius: 999px; padding: 4px 9px; font-size: 11px; font-weight: 800; letter-spacing: .01em; }
-  .related-sources { display: flex; flex-direction: column; gap: 5px; padding: 10px 12px; background: #f6f9fc; border: 1px solid var(--line); border-radius: 10px; font-size: 12px; }
-  .related-sources strong { color: var(--ink); }
-  .related-sources a { color: var(--sky2); text-decoration: none; font-weight: 700; overflow-wrap: anywhere; }
-  .related-sources a:hover { text-decoration: underline; }
   .foot { margin-top: auto; padding-top: 14px; border-top: 1px solid var(--line); display: flex; justify-content: space-between; align-items: center; gap: 10px; font-size: 13px; }
   .foot .src { color: var(--ink-soft); min-width: 0; }
   .foot .src b { display: block; color: var(--ink); font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -165,7 +160,7 @@
 
 <main>
   <section class="stats" aria-label="Summary">
-    <div class="stat"><b id="totalStat">–</b><span>Distinct stories/events</span></div>
+    <div class="stat"><b id="totalStat">–</b><span>Articles</span></div>
     <div class="stat"><b id="recentStat">–</b><span>Last 24 hours</span></div>
     <div class="stat"><b id="publisherStat">–</b><span>Publishers</span></div>
     <div class="stat"><b id="categoryStat">–</b><span>Categories</span></div>
@@ -282,98 +277,6 @@
     return "data:image/svg+xml;utf8," + encodeURIComponent(svg);
   }
 
-  // ---------- Duplicate detection and event grouping ----------
-  // This runs on the articles returned by Apps Script. It groups likely
-  // same-event reports conservatively, so unrelated stories are less likely
-  // to be merged. The most recent article represents each group.
-  const TITLE_STOPWORDS = new Set([
-    "a","an","the","and","or","but","for","to","of","in","on","at","by","from","with","as",
-    "is","are","was","were","be","been","being","will","would","could","should","has","have",
-    "had","after","before","over","into","its","their","this","that","new","latest","update",
-    "announces","announced","says","said","reports","report","launches","launch","plans","plan"
-  ]);
-
-  function titleTokens(value) {
-    return String(value || "").toLowerCase()
-      .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
-      .replace(/&/g, " and ").replace(/[^a-z0-9]+/g, " ")
-      .trim().split(/\s+/)
-      .filter(function (w) { return w.length > 1 && !TITLE_STOPWORDS.has(w); });
-  }
-
-  function titleSimilarity(a, b) {
-    const A = new Set(titleTokens(a)), B = new Set(titleTokens(b));
-    if (!A.size || !B.size) return 0;
-    let common = 0;
-    A.forEach(function (w) { if (B.has(w)) common++; });
-    const jaccard = common / (A.size + B.size - common);
-    const containment = common / Math.min(A.size, B.size);
-    // Require at least two meaningful shared words; for longer titles, three.
-    const minCommon = Math.min(A.size, B.size) <= 3 ? 2 : 3;
-    if (common < minCommon) return 0;
-    return Math.max(jaccard, containment >= 0.8 ? containment * 0.86 : 0);
-  }
-
-  function articleTime(a) {
-    const n = a && a.publishedAt ? new Date(a.publishedAt).getTime() : 0;
-    return Number.isFinite(n) ? n : 0;
-  }
-
-  function canonicalArticleUrl(value) {
-    try {
-      const u = new URL(String(value || ""));
-      u.hash = "";
-      ["utm_source","utm_medium","utm_campaign","utm_term","utm_content","fbclid","gclid","ref","source"].forEach(function (k) {
-        u.searchParams.delete(k);
-      });
-      return (u.hostname || "").replace(/^www\./, "") + u.pathname.replace(/\/+$/, "") + (u.searchParams.toString() ? "?" + u.searchParams.toString() : "");
-    } catch (e) {
-      return String(value || "").trim().toLowerCase();
-    }
-  }
-
-  function clusterArticles(rawArticles) {
-    const seenUrls = new Set();
-    const unique = [];
-    (Array.isArray(rawArticles) ? rawArticles : []).forEach(function (a) {
-      if (!a || !a.headline) return;
-      const urlKey = canonicalArticleUrl(a.url);
-      if (urlKey && seenUrls.has(urlKey)) return;
-      if (urlKey) seenUrls.add(urlKey);
-      unique.push(a);
-    });
-
-    // Compare only stories published within seven days of each other.
-    // A cluster is built around the strongest matching headline, not just
-    // publisher or category, to avoid grouping unrelated aviation stories.
-    const sorted = unique.slice().sort(function (a, b) { return articleTime(b) - articleTime(a); });
-    const clusters = [];
-    sorted.forEach(function (article) {
-      let best = null, bestScore = 0;
-      clusters.forEach(function (cluster) {
-        const newest = cluster.members.reduce(function (m, x) { return Math.max(m, articleTime(x)); }, 0);
-        const at = articleTime(article);
-        if (at && newest && Math.abs(newest - at) > 7 * 24 * 60 * 60 * 1000) return;
-        let score = 0;
-        cluster.members.forEach(function (member) {
-          score = Math.max(score, titleSimilarity(article.headline, member.headline));
-        });
-        // Conservative threshold: title overlap must be strong enough.
-        if (score >= 0.62 && score > bestScore) { best = cluster; bestScore = score; }
-      });
-      if (best) best.members.push(article);
-      else clusters.push({ members: [article] });
-    });
-
-    return clusters.map(function (cluster) {
-      const members = cluster.members.slice().sort(function (a, b) { return articleTime(b) - articleTime(a); });
-      const representative = Object.assign({}, members[0]);
-      representative.clusterMembers = members;
-      representative.sourceCount = members.length;
-      return representative;
-    }).sort(function (a, b) { return articleTime(b) - articleTime(a); });
-  }
-
   function loadDashboard() {
     const btn = document.getElementById("refreshBtn");
     btn.disabled = true;
@@ -386,14 +289,8 @@
       .then(function (r) { if (!r.ok) throw new Error("Server returned HTTP " + r.status); return r.json(); })
       .then(function (payload) {
         if (payload && payload.error) throw new Error(payload.error);
-        allArticles = clusterArticles(payload.articles || []);
-        dashboardStats = Object.assign({}, payload.stats || {});
-        // Dashboard counts represent distinct stories/events after deduplication.
-        dashboardStats.total = allArticles.length;
-        dashboardStats.last24Hours = allArticles.filter(function (a) {
-          const t = articleTime(a);
-          return t > 0 && t >= Date.now() - 24 * 60 * 60 * 1000;
-        }).length;
+        allArticles = payload.articles || [];
+        dashboardStats = payload.stats || {};
         renderStats();
         populateSelect("categoryFilter", payload.categories || [], "All categories");
         populateSelect("regionFilter", payload.regions || [], "All regions");
@@ -446,22 +343,16 @@
     const period = document.getElementById("periodFilter").value;
     const cutoff = period === "all" ? 0 : Date.now() - Number(period) * 3600000;
 
-    renderArticles(allArticles.filter(function (group) {
-      const members = group.clusterMembers || [group];
-      return members.some(function (a) {
-        const text = [a.headline, a.publisher, a.country, a.region, a.category].join(" ").toLowerCase();
-        const t = articleTime(a);
-        return (!q || text.indexOf(q) >= 0) &&
-          (!category || a.category === category) &&
-          (!region || a.region === region) &&
-          (!cutoff || (t && t >= cutoff));
-      });
+    renderArticles(allArticles.filter(function (a) {
+      const text = [a.headline, a.publisher, a.country, a.region, a.category].join(" ").toLowerCase();
+      const t = a.publishedAt ? new Date(a.publishedAt).getTime() : 0;
+      return (!q || text.indexOf(q) >= 0) && (!category || a.category === category) && (!region || a.region === region) && (!cutoff || (t && t >= cutoff));
     }));
   }
 
   function renderArticles(articles) {
     shownArticles = articles;
-    document.getElementById("resultCount").textContent = articles.length + (articles.length === 1 ? " distinct story/event" : " distinct stories/events");
+    document.getElementById("resultCount").textContent = articles.length + (articles.length === 1 ? " article" : " articles");
     const grid = document.getElementById("articleGrid");
     if (!articles.length) {
       grid.innerHTML = '<div class="msg"><strong>No matching articles</strong>Try a different search or reset the filters.</div>';
@@ -487,16 +378,6 @@
         '<div class="pill"><i style="background:' + DOT[hash(cat) % DOT.length] + '"></i><span>' + escapeHtml(cat) + '</span></div></div>' +
         '<div class="body"><h3>' + escapeHtml(a.headline) + '</h3>' +
         '<div class="tags"><span>' + escapeHtml(a.region || "Region n/a") + '</span><span>' + escapeHtml(a.country || "Country n/a") + '</span></div>' +
-        (a.sourceCount > 1 ? '<div class="event-badge">Same event · ' + a.sourceCount + ' reports grouped</div>' +
-          '<div class="related-sources"><strong>Coverage of this event</strong>' +
-          a.clusterMembers.slice(0, 5).map(function (m) {
-            const publisher = escapeHtml(m.publisher || "Unknown publisher");
-            const headline = escapeHtml(m.headline || "Related report");
-            return m.url ? '<a href="' + escapeHtml(m.url) + '" target="_blank" rel="noopener noreferrer">' + publisher + ' — ' + headline + '</a>' :
-              '<span>' + publisher + ' — ' + headline + '</span>';
-          }).join("") +
-          (a.sourceCount > 5 ? '<span>+' + (a.sourceCount - 5) + ' more reports</span>' : '') +
-          '</div>' : '') +
         '<div class="foot"><div class="src"><b>' + escapeHtml(a.publisher || "Unknown publisher") + '</b>' + escapeHtml(a.publishedAt ? formatDate(a.publishedAt) : "Date unavailable") + '</div>' + actions + '</div></div></article>';
     }).join("");
   }
