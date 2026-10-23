@@ -76,8 +76,8 @@
   .foot .src { color: var(--ink-soft); min-width: 0; }
   .foot .src b { display: block; color: var(--ink); font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .actions { display: flex; align-items: center; gap: 8px; flex: none; }
-  .open { flex: none; text-decoration: none; background: var(--ink); color: #fff; font-weight: 700; font-size: 13px; padding: 8px 14px; border-radius: 999px; transition: background .2s, transform .2s; }
-  .open:hover { background: var(--teal-dark); transform: scale(1.03); }
+  .read-link { flex: none; text-decoration: none; background: var(--ink); color: #fff; font-weight: 700; font-size: 13px; padding: 8px 14px; border-radius: 999px; transition: background .2s, transform .2s; }
+  .read-link:hover { background: var(--teal-dark); transform: scale(1.03); }
   .share { flex: none; width: 34px; height: 34px; display: inline-grid; place-items: center; border: 1px solid var(--line); background: #fff; color: var(--ink); border-radius: 50%; cursor: pointer; padding: 0; transition: background .2s, color .2s, border-color .2s, transform .2s; }
   .share svg { width: 16px; height: 16px; }
   .share:hover { background: var(--teal); border-color: var(--teal); color: #fff; transform: scale(1.06); }
@@ -91,8 +91,9 @@
   .share-menu.is-open { display: block; animation: menuIn .16s ease-out; }
   @keyframes menuIn { from { opacity: 0; transform: translateY(-6px) scale(.98); } to { opacity: 1; transform: none; } }
   .share-menu button, .share-menu a { display: flex; align-items: center; gap: 12px; width: 100%; padding: 10px 12px; border: 0; background: transparent; border-radius: 10px; font: 600 14px var(--sans); color: var(--ink); text-align: left; text-decoration: none; cursor: pointer; }
-  .share-menu button:hover, .share-menu a:hover, .share-menu button:focus-visible, .share-menu a:focus-visible { background: #eef3f7; }
+  .share-menu button:hover, .share-menu a:hover, .share-menu button:focus-visible, .share-menu a:focus-visible { background: #f1f1f1; }
   .share-menu i { width: 26px; height: 26px; border-radius: 50%; display: inline-grid; place-items: center; flex: none; font: 700 12px var(--sans); font-style: normal; color: #fff; }
+  .share-menu, .share-menu:hover { background: #fff !important; color: var(--ink) !important; transform: none !important; }
   .share-menu hr { border: 0; border-top: 1px solid var(--line); margin: 4px 6px; }
   @media (max-width: 560px) { .share-menu { left: 12px !important; right: 12px; top: auto !important; bottom: 12px; width: auto; border-radius: 18px; padding: 10px; } }
 
@@ -309,7 +310,7 @@
         populateSelect("regionFilter", payload.regions || [], "All regions");
         applyFilters();
         const updated = dashboardStats.lastUpdated ? formatDate(dashboardStats.lastUpdated) : "n/a";
-        document.getElementById("footerText").textContent = "Data refreshed " + updated + (dashboardStats.capped ? " (latest 1,000 records)" : "");
+        document.getElementById("footerText").textContent = "Data refreshed " + updated + (dashboardStats.capped ? " (latest 1,000 records)" : "") + " \u00b7 page v4";
         btn.disabled = false; btn.classList.remove("busy"); document.getElementById("refreshLabel").textContent = "Refresh data";
       })
       .catch(function (error) {
@@ -382,7 +383,7 @@
         ? '<div class="actions">' +
             '<button type="button" class="share" data-idx="' + i + '" aria-label="Share this article" aria-haspopup="menu" title="Share">' +
               '<svg aria-hidden="true"><use href="#share-icon"/></svg></button>' +
-            '<a class="open" href="' + escapeHtml(a.url) + '" target="_blank" rel="noopener noreferrer">Read article</a>' +
+            '<a class="read-link" href="' + escapeHtml(a.url) + '" target="_blank" rel="noopener noreferrer">Read article</a>' +
           '</div>'
         : '<span class="src">No link</span>';
 
