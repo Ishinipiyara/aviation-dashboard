@@ -325,9 +325,6 @@
   function renderStats() {
     // The Articles card reflects the currently displayed (filtered) results.
     document.getElementById("totalStat").textContent = numberFormat(allArticles.length);
-    countUp("recentStat", dashboardStats.last24Hours || 0);
-    countUp("publisherStat", dashboardStats.publishers || 0);
-    countUp("categoryStat", dashboardStats.categories || 0);
   }
 
   function populateSelect(id, values, firstLabel) {
@@ -359,6 +356,27 @@
     // Keep the summary card in sync with search, category, region, and date filters.
     document.getElementById("totalStat").textContent = numberFormat(articles.length);
     document.getElementById("resultCount").textContent = articles.length + (articles.length === 1 ? " article" : " articles");
+
+    // Keep the other summary cards in sync with the filtered results.
+    const dayAgo = Date.now() - 24 * 3600000;
+    const pubs = new Set(), cats = new Set();
+    let last24 = 0;
+    articles.forEach(function (a) {
+      if (a.publisher) pubs.add(a.publisher);
+      if (a.category) cats.add(a.category);
+      const t = a.publishedAt ? new Date(a.publishedAt).getTime() : 0;
+      if (t && t >= dayAgo) last24++;
+    });
+    if (animateNext && !REDUCE) {          // count-up animation only on first load / refresh
+      countUp("recentStat", last24);
+      countUp("publisherStat", pubs.size);
+      countUp("categoryStat", cats.size);
+    } else {                               // instant update while filtering
+      document.getElementById("recentStat").textContent = numberFormat(last24);
+      document.getElementById("publisherStat").textContent = numberFormat(pubs.size);
+      document.getElementById("categoryStat").textContent = numberFormat(cats.size);
+    }
+
     const grid = document.getElementById("articleGrid");
     if (!articles.length) {
       grid.innerHTML = '<div class="msg"><strong>No matching articles</strong>Try a different search or reset the filters.</div>';
