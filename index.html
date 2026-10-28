@@ -14,7 +14,7 @@
 <meta name="apple-mobile-web-app-title" content="Aviation Watch">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Manrope:wght@400;500;600;700&display=swap" rel="sheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   .to-top{position:fixed;right:20px;bottom:24px;width:46px;height:46px;border:0;border-radius:50%;background:var(--ink);color:#fff;font-size:20px;cursor:pointer;box-shadow:0 8px 20px rgba(15,43,70,.3);opacity:0;visibility:hidden;transform:translateY(10px);transition:opacity .25s,transform .25s,visibility .25s;z-index:25}
   .to-top.show{opacity:1;visibility:visible;transform:none}
@@ -197,6 +197,7 @@
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 <button type="button" class="to-top" id="toTop" aria-label="Back to top" title="Back to top">&#8593;</button>
+
 <script>
   // PASTE your Apps Script web app URL here (ends with /exec)
   const API_URL = "https://script.google.com/macros/s/AKfycbysSI1gkrbgL30lrktGCDoypFJ6nZiOR9Kk1GiOeBGr6YPLnj4i_WqnLdPgSfc67KG5/exec";
@@ -206,6 +207,7 @@
   let animateNext = true;
   const REDUCE = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
   let dashboardStats = {};
+  const countUpFrames = Object.create(null);
   const DOT = ["#0e8f8a", "#e6a82b", "#1d5f8a", "#7a5cc4", "#d1495b", "#3b9c5a", "#c26a2d", "#5a6e82"];
 
   function hash(str) { let h = 0; for (let i = 0; i < str.length; i++) h = (h * 31 + str.charCodeAt(i)) | 0; return Math.abs(h); }
@@ -297,8 +299,11 @@
       .then(function (r) { if (!r.ok) throw new Error("Server returned HTTP " + r.status); return r.json(); })
       .then(function (payload) {
         if (payload && payload.error) throw new Error(payload.error);
-        allArticles = payload.articles || [];
-        dashboardStats = payload.stats || {};
+        if (!payload || !Array.isArray(payload.articles)) {
+          throw new Error("Unexpected API response: expected an articles array.");
+        }
+        allArticles = payload.articles;
+        dashboardStats = payload.stats && typeof payload.stats === "object" ? payload.stats : {};
         renderStats();
         populateSelect("categoryFilter", payload.categories || [], "All categories");
         populateSelect("regionFilter", payload.regions || [], "All regions");
@@ -318,13 +323,16 @@
 
   function countUp(id, target) {
     const el = document.getElementById(id);
+    if (countUpFrames[id]) cancelAnimationFrame(countUpFrames[id]);
     if (REDUCE || target < 2) { el.textContent = numberFormat(target); return; }
     const start = performance.now(), dur = 900;
-    (function tick(now) {
+    function tick(now) {
       const p = Math.min(1, (now - start) / dur);
       el.textContent = numberFormat(Math.round(target * (1 - Math.pow(1 - p, 3))));
-      if (p < 1) requestAnimationFrame(tick);
-    })(start);
+      if (p < 1) countUpFrames[id] = requestAnimationFrame(tick);
+      else delete countUpFrames[id];
+    }
+    countUpFrames[id] = requestAnimationFrame(tick);
   }
 
   function renderStats() {
@@ -394,11 +402,12 @@
       const cat = a.category || "Uncategorized";
       const fb = fallbackImage(cat, a.id || a.headline);
       const img = a.imageUrl && /^https:\/\//i.test(a.imageUrl) ? a.imageUrl : fb;
-      const actions = a.url
+      const articleUrl = safeArticleUrl(a.url);
+      const actions = articleUrl
         ? '<div class="actions">' +
             '<button type="button" class="share" data-idx="' + i + '" aria-label="Share this article" aria-haspopup="menu" title="Share">' +
               '<svg aria-hidden="true"><use href="#share-icon"/></svg></button>' +
-            '<a class="read-link" href="' + escapeHtml(a.url) + '" target="_blank" rel="noopener noreferrer">Read article</a>' +
+            '<a class="read-link" href="' + escapeHtml(articleUrl) + '" target="_blank" rel="noopener noreferrer">Read article</a>' +
           '</div>'
         : '<span class="src">No link</span>';
 
@@ -424,7 +433,7 @@
     e.stopPropagation();
     if (menu.classList.contains("is-open") && menuOpener === btn) { closeMenu(); return; }
     const a = shownArticles[Number(btn.dataset.idx)];
-    if (a) openMenu(a, btn);
+    if (a && safeArticleUrl(a.url)) openMenu(a, btn);
   });
   document.addEventListener("click", function (e) { if (!menu.contains(e.target)) closeMenu(); });
   document.addEventListener("keydown", function (e) { if (e.key === "Escape") closeMenu(); });
@@ -432,8 +441,10 @@
   window.addEventListener("resize", closeMenu);
 
   function openMenu(a, btn) {
-    menuArticle = a; menuOpener = btn;
-    const u = encodeURIComponent(a.url), t = encodeURIComponent(a.headline);
+    const articleUrl = safeArticleUrl(a.url);
+    if (!articleUrl) return;
+    menuArticle = Object.assign({}, a, { url: articleUrl }); menuOpener = btn;
+    const u = encodeURIComponent(articleUrl), t = encodeURIComponent(a.headline || "Aviation news");
     const items = [
       { label: "Copy link", color: "#0f2b46", icon: "\u29C9", action: "copy" },
       { label: "WhatsApp", color: "#25d366", icon: "W", href: "https://wa.me/?text=" + t + "%20" + u },
@@ -523,6 +534,16 @@
     applyFilters();
   }
 
+  function safeArticleUrl(value) {
+    if (typeof value !== "string" || !value.trim()) return "";
+    try {
+      const url = new URL(value, window.location.href);
+      return url.protocol === "https:" ? url.href : "";
+    } catch (e) {
+      return "";
+    }
+  }
+
   function formatDate(v) {
     const d = new Date(v);
     if (isNaN(d.getTime())) return "Date unavailable";
@@ -540,9 +561,9 @@
     document.getElementById("progBar").style.width = (p * 100) + "%";
     document.getElementById("progPlane").style.left = (p * 100) + "%";
   }, { passive: true });
+  window.dispatchEvent(new Event("scroll"));
 
   loadDashboard();
-  
   (function () {
     const btn = document.getElementById("toTop");
     addEventListener("scroll", () => btn.classList.toggle("show", scrollY > 600), { passive: true });
