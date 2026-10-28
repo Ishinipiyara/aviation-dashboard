@@ -542,13 +542,12 @@
   }, { passive: true });
 
   loadDashboard();
-  // Scroll to top button (add here)
+  <button type="button" class="to-top" id="toTop" aria-label="Back to top" title="Back to top">&#8593;</button>
   (function () {
     const btn = document.getElementById("toTop");
     addEventListener("scroll", () => btn.classList.toggle("show", scrollY > 600), { passive: true });
     btn.addEventListener("click", () => scrollTo({ top: 0, behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" }));
   })();
 </script>
-<button type="button" class="to-top" id="toTop" aria-label="Back to top" title="Back to top">&#8593;</button>
 </body>
 </html>
