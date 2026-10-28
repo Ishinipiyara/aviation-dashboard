@@ -213,79 +213,52 @@
   function hash(str) { let h = 0; for (let i = 0; i < str.length; i++) h = (h * 31 + str.charCodeAt(i)) | 0; return Math.abs(h); }
 
   // Category-driven high quality default SVG images
-  function fallbackImage(category, seed) {
-    const catKey = (category || "").toLowerCase();
 
-    let skyGrad = ["#0f2b46", "#1d5f8a"];
-    let accent = "#e6a82b";
-    let iconGraphics = "";
+function fallbackImage(category) {
+  const cat = (category || "").toLowerCase();
 
-    if (catKey.includes("airport") || catKey.includes("infrastructure")) {
-      skyGrad = ["#113859", "#3a7bd5"];
-      accent = "#38ef7d";
-      iconGraphics = `
-        <polygon points="180,250 190,130 210,130 220,250" fill="#ffffff" opacity="0.3"/>
-        <rect x="180" y="115" width="40" height="20" rx="4" fill="#ffffff" opacity="0.8"/>
-        <line x1="200" y1="115" x2="200" y2="90" stroke="${accent}" stroke-width="4"/>
-        <circle cx="200" cy="88" r="5" fill="${accent}"/>
-        <path d="M 0,230 L 400,230" stroke="#ffffff" stroke-width="2" stroke-dasharray="12,12" opacity="0.5"/>
-      `;
-    } else if (catKey.includes("regulat") || catKey.includes("policy") || catKey.includes("safety")) {
-      skyGrad = ["#1a2a3a", "#2c3e50"];
-      accent = "#f39c12";
-      iconGraphics = `
-        <path d="M 200,90 L 240,110 V 160 C 240,190 200,210 200,210 C 200,210 160,190 160,160 V 110 Z" fill="none" stroke="${accent}" stroke-width="6" opacity="0.85"/>
-        <path d="M 185,150 L 195,160 L 215,140" fill="none" stroke="#ffffff" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
-      `;
-    } else if (catKey.includes("cargo") || catKey.includes("freight") || catKey.includes("logistics")) {
-      skyGrad = ["#0d324d", "#7f5a83"];
-      accent = "#00d2ff";
-      iconGraphics = `
-        <rect x="165" y="120" width="70" height="60" rx="6" fill="none" stroke="${accent}" stroke-width="5" opacity="0.8"/>
-        <path d="M 165,140 L 235,140 M 200,120 V 180" stroke="${accent}" stroke-width="3" opacity="0.6"/>
-        <path d="M 130,170 L 270,170" stroke="#ffffff" stroke-width="4" stroke-linecap="round" opacity="0.4"/>
-      `;
-    } else if (catKey.includes("tour") || catKey.includes("travel") || catKey.includes("destination")) {
-      skyGrad = ["#134e5e", "#71b280"];
-      accent = "#ffda79";
-      iconGraphics = `
-        <circle cx="200" cy="130" r="45" fill="none" stroke="${accent}" stroke-width="4" opacity="0.8"/>
-        <ellipse cx="200" cy="130" rx="45" ry="18" fill="none" stroke="${accent}" stroke-width="3" opacity="0.5"/>
-        <line x1="200" y1="85" x2="200" y2="175" stroke="${accent}" stroke-width="3" opacity="0.5"/>
-      `;
-    } else {
-      const skies = [["#0f2b46", "#1d5f8a"], ["#142850", "#27496d"], ["#0c4160", "#00dfc4"], ["#1e3c72", "#2a5298"]];
-      skyGrad = skies[hash(String(seed || "")) % skies.length];
-      iconGraphics = `
-        <path d="M 20,220 C 140,210 240,150 320,80" stroke="#ffffff" stroke-opacity="0.3" stroke-width="3" fill="none" stroke-dasharray="8,6"/>
-      `;
+  const imageMap = [
+    {
+      keywords: ["airline", "route", "flight", "network", "frequency"],
+      image: "airline-routes.jpg"
+    },
+    {
+      keywords: ["airport", "infrastructure"],
+      image: "airport-infrastructure.jpg"
+    },
+    {
+      keywords: ["regulat", "policy", "safety", "icao", "iata", "authority"],
+      image: "regulation-safety.jpg"
+    },
+    {
+      keywords: ["cargo", "freight", "logistics"],
+      image: "cargo-logistics.jpg"
+    },
+    {
+      keywords: ["tour", "travel", "destination"],
+      image: "tourism-destinations.jpg"
+    },
+    {
+      keywords: ["aircraft", "fleet", "technology", "manufacturing", "maintenance"],
+      image: "aircraft-technology.jpg"
+    },
+    {
+      keywords: ["business", "industry", "investment", "partnership", "financial"],
+      image: "aviation-business.jpg"
     }
+  ];
 
-    const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 250" preserveAspectRatio="xMidYMid slice">
-      <defs>
-        <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stop-color="${skyGrad[0]}"/>
-          <stop offset="100%" stop-color="${skyGrad[1]}"/>
-        </linearGradient>
-      </defs>
-      <rect width="400" height="250" fill="url(#bg)"/>
-      <g opacity="0.15" fill="#ffffff">
-        <circle cx="50" cy="40" r="30"/>
-        <circle cx="340" cy="70" r="50"/>
-        <circle cx="370" cy="190" r="40"/>
-      </g>
-      ${iconGraphics}
-      <g fill="#ffffff" transform="translate(260, 75) rotate(-25) scale(0.9)">
-        <path d="M0 -5 L40 -3.5 Q52 0 40 3.5 L0 5 Z"/>
-        <path d="M12 -3 L-7 -33 L2 -33 L26 -3 Z"/>
-        <path d="M12 3 L-7 33 L2 33 L26 3 Z"/>
-        <path d="M-3 -3 L-12 -14 L-7 -14 L4 -3 Z"/>
-        <path d="M-3 3 L-12 14 L-7 14 L4 3 Z"/>
-      </g>
-    </svg>`;
+  const match = imageMap.find(item =>
+    item.keywords.some(keyword => cat.includes(keyword))
+  );
 
-    return "data:image/svg+xml;utf8," + encodeURIComponent(svg);
-  }
+  const filename = match
+    ? match.image
+    : "general-aviation.jpg";
+
+  return "./images/fallbacks/" + filename;
+}
+
 
   function loadDashboard() {
     const btn = document.getElementById("refreshBtn");
