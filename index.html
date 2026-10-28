@@ -373,7 +373,7 @@ function fallbackImage(category) {
 
     grid.innerHTML = articles.map(function (a, i) {
       const cat = a.category || "Uncategorized";
-      const fb = fallbackImage(cat, a.id || a.headline);
+      const fb = fallbackImage(cat);
       const img = a.imageUrl && /^https:\/\//i.test(a.imageUrl) ? a.imageUrl : fb;
       const articleUrl = safeArticleUrl(a.url);
       const actions = articleUrl
