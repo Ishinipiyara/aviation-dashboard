@@ -14,8 +14,11 @@
 <meta name="apple-mobile-web-app-title" content="Aviation Watch">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Manrope:wght@400;500;600;700&display=swap" rel="sheet">
 <style>
+  .to-top{position:fixed;right:20px;bottom:24px;width:46px;height:46px;border:0;border-radius:50%;background:var(--ink);color:#fff;font-size:20px;cursor:pointer;box-shadow:0 8px 20px rgba(15,43,70,.3);opacity:0;visibility:hidden;transform:translateY(10px);transition:opacity .25s,transform .25s,visibility .25s;z-index:25}
+  .to-top.show{opacity:1;visibility:visible;transform:none}
+  .to-top:hover{background:#0a6f6b}
   :root {
     --ink: #0f2b46; --ink-soft: #52667a; --line: #dbe5ee; --page: #eef3f7; --card: #ffffff;
     --teal: #0e8f8a; --teal-dark: #0a6f6b; --gold: #e6a82b; --sky1: #0f2b46; --sky2: #1d5f8a;
@@ -539,6 +542,13 @@
   }, { passive: true });
 
   loadDashboard();
+  // Scroll to top button (add here)
+  (function () {
+    const btn = document.getElementById("toTop");
+    addEventListener("scroll", () => btn.classList.toggle("show", scrollY > 600), { passive: true });
+    btn.addEventListener("click", () => scrollTo({ top: 0, behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" }));
+  })();
 </script>
+<button type="button" class="to-top" id="toTop" aria-label="Back to top" title="Back to top">&#8593;</button>
 </body>
 </html>
