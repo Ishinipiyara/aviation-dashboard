@@ -1,4 +1,7 @@
-const CACHE = "air-brief-v1";
+// OneSignal push support (must stay on the first lines)
+importScripts("https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.sw.js");
+
+const CACHE = "air-brief-v2";
 const SHELL = ["./", "./index.html", "./manifest.json"];
 
 self.addEventListener("install", function (e) {
