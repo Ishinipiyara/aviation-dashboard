@@ -15,6 +15,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
 <style>
   .to-top{position:fixed;right:16px;bottom:20px;width:38px;height:38px;border:0;border-radius:50%;background:var(--ink);color:#fff;font-size:16px;line-height:1;display:grid;place-items:center;padding:0;cursor:pointer;box-shadow:0 4px 12px rgba(15,43,70,.25);opacity:0;visibility:hidden;transform:translateY(10px);transition:opacity .25s,transform .25s,visibility .25s;z-index:25}
   .to-top.show{opacity:1;visibility:visible;transform:none}
@@ -25,6 +26,14 @@
   .install-btn:hover{transform:translateY(-2px)}
   .install-btn[hidden]{display:none}
   .install-btn svg{width:15px;height:15px}
+
+  /* ---------- Daily alerts button (hero) ---------- */
+  .hero-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .alert-btn{display:inline-flex;align-items:center;gap:8px;padding:12px 18px;border-radius:999px;border:1px solid rgba(255,255,255,.45);background:rgba(255,255,255,.14);color:#fff;font:700 14px var(--sans);cursor:pointer;backdrop-filter:blur(4px);transition:transform .2s,background-color .2s,color .2s}
+  .alert-btn:hover{transform:translateY(-2px);background:rgba(255,255,255,.24)}
+  .alert-btn[hidden]{display:none}
+  .alert-btn svg{width:17px;height:17px}
+  .alert-btn.on{background:var(--gold);border-color:var(--gold);color:var(--ink)}
 
   :root {
     --ink: #0f2b46; --ink-soft: #52667a; --line: #dbe5ee; --page: #eef3f7; --card: #ffffff;
@@ -169,7 +178,10 @@
       <h1>Sri Lanka Air Brief</h1>
       <p>Daily airline, airport and regulatory news from trusted aviation sources, in one place.</p>
     </div>
-    <button class="refresh" id="refreshBtn" onclick="loadDashboard()"><svg aria-hidden="true"><use href="#plane"/></svg><span id="refreshLabel">Refresh data</span></button>
+    <div class="hero-actions">
+      <button type="button" class="alert-btn" id="alertBtn" hidden aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg><span id="alertLabel">Daily 9 AM alerts</span></button>
+      <button class="refresh" id="refreshBtn" onclick="loadDashboard()"><svg aria-hidden="true"><use href="#plane"/></svg><span id="refreshLabel">Refresh data</span></button>
+    </div>
   </div>
 </header>
 
@@ -591,6 +603,69 @@ function fallbackImage(category) {
 
     // iPhone / iPad Safari has no install prompt, so show the button with instructions
     if (isIOS) installBtn.hidden = false;
+  })();
+
+  // ---------- Daily 9 AM push alerts (OneSignal) ----------
+  (function () {
+    // PASTE your OneSignal App ID here
+    const ONESIGNAL_APP_ID = "YOUR_ONESIGNAL_APP_ID";
+    if (ONESIGNAL_APP_ID.indexOf("YOUR_") === 0) return; // not set up yet, button stays hidden
+
+    const alertBtn = document.getElementById("alertBtn");
+    const alertLabel = document.getElementById("alertLabel");
+    const isStandalone = window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true;
+    const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+
+    window.OneSignalDeferred = window.OneSignalDeferred || [];
+    OneSignalDeferred.push(async function (OneSignal) {
+      await OneSignal.init({
+        appId: ONESIGNAL_APP_ID,
+        serviceWorkerPath: "sw.js",
+        notifyButton: { enable: false },
+        allowLocalhostAsSecureOrigin: true
+      });
+
+      // iPhone Safari tab: push only works after the app is added to the home screen
+      if (!OneSignal.Notifications.isPushSupported()) {
+        if (isIOS && !isStandalone) {
+          alertBtn.hidden = false;
+          alertBtn.addEventListener("click", function () {
+            showToast("First add this app to your Home Screen (Share, then Add to Home Screen), then open it and turn on alerts", 6000);
+          });
+        }
+        return;
+      }
+
+      function paint() {
+        const on = !!OneSignal.User.PushSubscription.optedIn;
+        alertBtn.classList.toggle("on", on);
+        alertBtn.setAttribute("aria-pressed", on ? "true" : "false");
+        alertLabel.textContent = on ? "Daily alerts on" : "Daily 9 AM alerts";
+      }
+
+      alertBtn.hidden = false;
+      paint();
+      OneSignal.User.PushSubscription.addEventListener("change", paint);
+
+      alertBtn.addEventListener("click", async function () {
+        if (typeof Notification !== "undefined" && Notification.permission === "denied") {
+          showToast("Notifications are blocked. Allow them in your browser or phone settings.", 4500);
+          return;
+        }
+        try {
+          if (OneSignal.User.PushSubscription.optedIn) {
+            await OneSignal.User.PushSubscription.optOut();
+            showToast("Daily alerts turned off");
+          } else {
+            await OneSignal.User.PushSubscription.optIn();
+            if (OneSignal.User.PushSubscription.optedIn) showToast("Daily 9 AM alerts turned on");
+          }
+        } catch (err) {
+          showToast("Could not change alert settings. Please try again.");
+        }
+        paint();
+      });
+    });
   })();
 </script>
 </body>
