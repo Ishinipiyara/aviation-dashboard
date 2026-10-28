@@ -196,7 +196,7 @@
 </main>
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
-
+<button type="button" class="to-top" id="toTop" aria-label="Back to top" title="Back to top">&#8593;</button>
 <script>
   // PASTE your Apps Script web app URL here (ends with /exec)
   const API_URL = "https://script.google.com/macros/s/AKfycbysSI1gkrbgL30lrktGCDoypFJ6nZiOR9Kk1GiOeBGr6YPLnj4i_WqnLdPgSfc67KG5/exec";
@@ -542,7 +542,7 @@
   }, { passive: true });
 
   loadDashboard();
-  <button type="button" class="to-top" id="toTop" aria-label="Back to top" title="Back to top">&#8593;</button>
+  
   (function () {
     const btn = document.getElementById("toTop");
     addEventListener("scroll", () => btn.classList.toggle("show", scrollY > 600), { passive: true });
