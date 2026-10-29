@@ -199,7 +199,7 @@
       <select id="categoryFilter" aria-label="Category" onchange="applyFilters()"><option value="">All categories</option></select>
       <select id="regionFilter" aria-label="Region" onchange="applyFilters()"><option value="">All regions</option></select>
       <select id="periodFilter" aria-label="Period" onchange="applyFilters()">
-        <option value="all">Any date</option><option value="24">Last 24 hours</option><option value="72">Last 3 days</option><option value="168">Last 7 days</option><option value="720">Last 30 days</option>
+        <option value="all">Last 3 days</option><option value="24">Last 24 hours</option>
       </select>
       <button class="reset" onclick="resetFilters()">Reset</button>
     </div>
@@ -223,6 +223,8 @@
   const API_URL = "https://script.google.com/macros/s/AKfycbysSI1gkrbgL30lrktGCDoypFJ6nZiOR9Kk1GiOeBGr6YPLnj4i_WqnLdPgSfc67KG5/exec";
 
   let allArticles = [];
+  const DISPLAY_DAYS = 3;   // show only news published in the last N days
+  document.querySelector('#periodFilter option[value="all"]').textContent = "Last " + DISPLAY_DAYS + " days";
   let shownArticles = [];
   let animateNext = true;
   const REDUCE = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -295,11 +297,16 @@ function fallbackImage(category) {
         if (!payload || !Array.isArray(payload.articles)) {
           throw new Error("Unexpected API response: expected an articles array.");
         }
-        allArticles = payload.articles;
+        allArticles = payload.articles.filter(function (a) {
+          return a.publishedAt && Date.parse(a.publishedAt) >= Date.now() - DISPLAY_DAYS * 86400000;
+        });
         dashboardStats = payload.stats && typeof payload.stats === "object" ? payload.stats : {};
         renderStats();
-        populateSelect("categoryFilter", payload.categories || [], "All categories");
-        populateSelect("regionFilter", payload.regions || [], "All regions");
+        const uniq = function (key) {
+          return Array.from(new Set(allArticles.map(function (a) { return a[key]; }).filter(Boolean))).sort();
+        };
+        populateSelect("categoryFilter", uniq("category"), "All categories");
+        populateSelect("regionFilter", uniq("region"), "All regions");
         applyFilters();
         const updated = dashboardStats.lastUpdated ? formatDate(dashboardStats.lastUpdated) : "n/a";
         document.getElementById("footerText").textContent = "Data refreshed " + updated + (dashboardStats.capped ? " (latest 1,000 records)" : "") + " \u00b7 page v5";
